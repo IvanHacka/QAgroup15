@@ -1,6 +1,8 @@
 # QAgroup15
 # A Software Bug Tracking and Reporting Tool.
-This software system is to record and track bugs. Used GitHub issues and Jira as reference=.
+This software system is to record and track bugs. Used GitHub issues and Jira as reference.
+## Workflow
+>OPEN → IN_PROGRESS → RESOLVED → CLOSED
 
 ## Features
 
