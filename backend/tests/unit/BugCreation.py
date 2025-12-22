@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from backend.models.Bugs import BugStatus
+from backend.models.Bug import BugStatus
 
 
 def test_invalid_status_rejected():

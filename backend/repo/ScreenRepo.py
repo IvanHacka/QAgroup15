@@ -4,7 +4,6 @@ import tempfile
 ScreenshotsFile = "data/screenshots"
 
 class ScreenRepo:
-
     # Save in temp file safely
     # Return path
     def save_screenshot_temp(file: bytes) -> str:
@@ -23,4 +22,4 @@ class ScreenRepo:
         if os.path.exists(path):
             os.remove(path)
 
-            
+
