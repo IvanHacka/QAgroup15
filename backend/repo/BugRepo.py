@@ -17,7 +17,7 @@ class BugRepo:
             with open(self.bug_file, "w") as f:
                 json.dump({}, f)
 
-    def read_all(self) -> List[Bug]:
+    def read_all(self) -> List[dict]:
         # Read all bugs
         try:
             with open(self.bug_file, "r") as f:
@@ -40,11 +40,10 @@ class BugRepo:
             return True
         except Exception as e:
             print(e)
+            # Free up
             if os.path.exists(temp_file):
                 os.remove(temp_file)
             return False
-
-
 
     @staticmethod
     def get_by_id(self, bug_id: str) -> Optional[Bug]:
@@ -61,33 +60,61 @@ class BugRepo:
                 )
         return None
 
-    @classmethod
-    def list(cls) -> list[Bug]:
+    # For filter method
+    def list(self, status: Optional[str]) -> list[Bug]:
+        bugs_data = self.read_all()
         bugs = []
-        if not os.path.exists(cls.BugFile):
-            return bugs
 
-        for file in os.listdir(cls.BugFile):
-            if not file.endswith(".json"):
+        for b in bugs_data:
+            # Apply status filter if provided
+            if status and b.get("status") != status:
                 continue
-            path = os.path.join(cls.BugFile, file)
 
-            with open(path, "r") as f:
-                data = json.load(f)
-
-            bug = Bug(**data)
+            bug = Bug(
+                id=b["id"],
+                title=b["title"],
+                description=b["description"],
+                status=BugStatus(b["status"]),
+                screenshot=b.get("screenshot", [])
+            )
             bugs.append(bug)
 
-    @staticmethod
-    def save(bug):
-        with open(BugFile, "w") as f:
-            bugs = json.load(f)
-            for b in bugs:
-                if b["id"] == bug.id:
-                    b["screenshot"] = bug.screenshot
-                    temp = BugFile + ".tmp"
-                    with open(temp, "w") as f:
-                        json.dump(bugs, f, indent=3)
+        return bugs
 
-                    os.replace(temp, BugFile)
 
+    def create(self, bug: Bug) -> bool:
+        bugs = self.read_all()
+        if any(b["id"] == bug.id for b in bugs):
+            print(f"Bug {bug.id} already exists.")
+            return False
+
+        bugs.append(bug.to_dict())
+        return self.write_all(bugs)
+
+    def update(self, bug: Bug) -> bool:
+        bugs = self.read_all()
+
+        for i, b in enumerate(bugs):
+            if b["id"] == bug.id:
+                bugs[i] = bug.to_dict()
+                return self.write_all(bugs)
+
+        print('Bug not found.')
+        return False
+
+    def delete(self, bug: Bug) -> bool:
+        bugs = self.read_all()
+
+        length = len(bugs)
+        # Filter out bugs with match id and exclude it
+        bugs = [b for b in bugs if b["id"] != bug.id]
+        # Check if anything deleted
+        if len(bugs) < length:
+            return self.write_all(bugs)
+
+        print(f'Bug {bug.id} not found.')
+        return False
+
+    # Might want to display the total number of bugs
+    def count(self) -> int:
+        return len(self.read_all())
