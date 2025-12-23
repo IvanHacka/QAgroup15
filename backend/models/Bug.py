@@ -29,7 +29,6 @@ class Bug:
     status: BugStatus
     priority: BugPriority
     tester_id: int
-    developer_id: int
     screenshot: list[str] = field(default_factory=list)
     assigned_to: Optional[int] = None
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -45,7 +44,6 @@ class Bug:
             "status": self.status.value,
             "priority": self.priority.value,
             "tester_id": self.tester_id,
-            "developer_id": self.developer_id,
             "screenshot": self.screenshot,
             "assigned_to": self.assigned_to,
             "created": self.created,
@@ -67,7 +65,6 @@ class Bug:
             status = status,
             priority = BugPriority(data["priority"]),
             tester_id = data["tester_id"],
-            developer_id = data["developer_id"],
             screenshot = data["screenshot"],
             assigned_to = data.get("assigned_to"),
             created = data["created"],

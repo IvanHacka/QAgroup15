@@ -93,26 +93,12 @@ class BugRepo:
 
     def update(self, bug: Bug) -> bool:
         bugs = self.read_all()
-
         for i, b in enumerate(bugs):
             if b["id"] == bug.id:
                 bugs[i] = bug.to_dict()
                 return self.write_all(bugs)
 
-        print('Bug not found.')
-        return False
-
-    def delete(self, bug: Bug) -> bool:
-        bugs = self.read_all()
-
-        length = len(bugs)
-        # Filter out bugs with match id and exclude it
-        bugs = [b for b in bugs if b["id"] != bug.id]
-        # Check if anything deleted
-        if len(bugs) < length:
-            return self.write_all(bugs)
-
-        print(f'Bug {bug.id} not found.')
+        print(f"Bug {bug.id} not found.")
         return False
 
     # Might want to display the total number of bugs
