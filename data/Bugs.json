@@ -1,0 +1,28 @@
+[
+   {
+      "id": "dabecfb1-6441-4d34-bfd3-608c649809e1",
+      "title": "Login button no work",
+      "description": "random stuff hopefully in database",
+      "status": "OPEN",
+      "priority": "LOW",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-23T16:11:49.876580",
+      "updated": "2025-12-23T16:11:49.876590",
+      "assigned": null
+   },
+   {
+      "id": "46b7d120-285a-44f2-96ad-058805af4ea6",
+      "title": "hu",
+      "description": "ji ji ijo",
+      "status": "OPEN",
+      "priority": "LOW",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-23T16:24:15.109234",
+      "updated": "2025-12-23T16:24:15.109245",
+      "assigned": null
+   }
+]
