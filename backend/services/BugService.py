@@ -34,6 +34,8 @@ class BugService:
     def list_bugs(self, status: Optional[str], priority: Optional[str],
                   assigned_to: Optional[str]) -> List[Bug]:
         bugs = self.repo.list(status = status)
+        # Add other filtering here
+
 
         return bugs
 
