@@ -17,7 +17,7 @@ class BugService:
         if not bug.description or len(bug.description) == 0:
             raise ValueError("Bug description is required")
         if len(bug.description) > 2000:
-            raise ValueError("Bug description can't be exceeding 200 characters")
+            raise ValueError("Bug description can't be exceeding 2000 characters")
 
         if not isinstance(bug.status, BugStatus):
             raise ValueError("Bug status is required")
@@ -55,8 +55,8 @@ class BugService:
                Exception: If creation fails
        """
         self.validate_bug(bug)
-        bug.created_at = datetime.now().isoformat()
-        bug.updated_at = datetime.now().isoformat()
+        bug.created = datetime.now().isoformat()
+        bug.updated = datetime.now().isoformat()
 
         if self.repo.create(bug):
             return bug

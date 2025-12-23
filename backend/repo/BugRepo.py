@@ -15,7 +15,7 @@ class BugRepo:
         os.makedirs(os.path.dirname(self.bug_file), exist_ok=True)
         if not os.path.exists(self.bug_file):
             with open(self.bug_file, "w") as f:
-                json.dump({}, f)
+                json.dump([], f)
 
     def read_all(self) -> List[dict]:
         # Read all bugs
