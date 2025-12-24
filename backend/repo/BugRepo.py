@@ -77,12 +77,19 @@ class BugRepo:
                 continue
 
             bug = Bug(
-                id=b["id"],
-                title=b["title"],
-                description=b["description"],
-                status=BugStatus(b["status"]),
-                screenshot=b.get("screenshot", [])
-            )
+    
+    id=b["id"],
+    title=b["title"],
+    description=b["description"],
+    status=BugStatus(b["status"]),
+    priority=BugPriority(b["priority"]),
+    tester_id=b["tester_id"],
+    assigned_to=b.get("assigned_to"),
+    screenshot=b.get("screenshot", []),
+    created=b.get("created"),
+    updated=b.get("updated") 
+                        )
+            
             bugs.append(bug)
 
         return bugs
