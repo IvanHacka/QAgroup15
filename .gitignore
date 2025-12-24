@@ -3,6 +3,13 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# PyCharm / IDE files
+.idea/
+*.iml
+
+# User data (do not commit)
+data/Users.json
+
 # C extensions
 *.so
 
