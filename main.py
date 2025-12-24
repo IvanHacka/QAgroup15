@@ -1,80 +1,103 @@
-import json
-import os
+from flask import Flask, jsonify
+from flask import render_template, request
 
-user_file=os.path.join("login","users.json")
 
-def load_user():#Reads users from the file
+from backend.controllers.BugController import BugController
+from backend.repo.BugRepo import BugRepo
+from backend.services.BugService import BugService
 
-    if not os.path.exists(user_file):#if file doesnt exist
-        return{}
+from backend.controllers.UserController import UserController
+from backend.repo.UserRepo import UserRepo
+from backend.services.UserService import UserService
 
-    with open(user_file, "r") as f:
-        try:
-            return json.load(f)#reads file
-        except json.JSONDecodeError:#if empty
-            return {}
+app = Flask(__name__, template_folder="frontend/templates")
 
-def save_user(users):
-    os.makedirs(os.path.dirname(user_file), exist_ok=True)
-    with open(user_file, "w") as f:
-        json.dump(users, f)#converts users to json
 
+# Bug tracking setup
+bug_repo = BugRepo()
+bug_service = BugService(bug_repo)
+bug_controller = BugController(bug_service)
+
+# User auth setup
+user_repo = UserRepo()
+user_service = UserService(user_repo)
+user_controller = UserController(user_service)
+
+# Routes
+
+# Get everything
+@app.route("/api/bugs", methods=["GET"])
+def get_bug():
+    return bug_controller.get_all()
+
+# Create POST request for bug
+@app.route("/api/bugs", methods=["POST"])
+def create_bug():
+    return bug_controller.create()
+
+# Assign bug to developer
+@app.route("/api/bug/<bug_id>/assign", methods=["POST"])
+def assign_bug(bug_id):
+    return bug_controller.assign(bug_id)
+
+# Register user
+@app.route("/api/users/register", methods=["POST"])
 def register_user():
-    users=load_user()
+    return user_controller.register()
 
-    username=input("Enter your username: ")
+@app.route("/register", methods=["GET", "POST"])
+def register_page():
+    if request.method == "GET":
+        # show registration form
+        return render_template("register.html")
 
-    if username=="":#check if username is empty
-        print("Please enter a username.")
-        return
+    if request.method == "POST":
+        # get form data
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-    if username in users:#check if username already in file
-        print("Username already in use.")
-        return
+        ok, message = user_service.register(username, password)
 
-    password=input("Enter your password: ")
-
-    if password=="":#check if password empty
-        print("Please enter a password.")
-        return
-
-    passwordcheck=input("Please Enter your password again: ")#user has to reenter password
-    if passwordcheck!=password:
-        print("Passwords do not match.")
-        return
-
-    users[username]=password#adds new user
-    save_user(users)#saves
-    print(f'{username}' " registered successfully")
-
-def login_user():
-    users=load_user()
-
-    username=input("Enter your username ")
-    password=input("Please enter your password ")
-
-    if username in users and users[username]==password:
-        print("Login successful")
-        return username
-    else:
-        print("Login unsuccessful")
-        return None
-
-def loginmenu():
-    while True:
-        print("Welcome to the bug tracker \n 1. Register a new user\n 2. Log In\n 3. Exit ")
-        Selection=input("Please select a number (1-3) ")
-
-        if Selection=="1":
-            register_user()
-
-        elif Selection=="2":
-            login_user()
-
-        elif Selection=="3":
-            break
-
+        if ok:
+            return f"Registration successful. You can now <a href='/login'>login</a>."
         else:
-            print("Invalid selection")
+            return f"Registration failed: {message}"
 
-loginmenu()
+
+# Login user
+@app.route("/api/users/login", methods=["POST"])
+def login_user():
+    return user_controller.login()
+
+# Error handling
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Not found"}), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return jsonify({"error": "Internal server error"}), 500
+
+@app.route("/login", methods=["GET", "POST"])
+def login_page():
+    if request.method == "GET":
+        # show login form
+        return render_template("login.html")
+
+    if request.method == "POST":
+        # read form input
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        ok, message = user_service.login(username, password)
+
+        if ok:
+            return f"Login successful{username}"
+        else:
+            return f"Login failed: {message}"
+
+if __name__ == "__main__":
+    print("Starting server...")
+    print("Bug Tracker API starting...")
+    app.run(host="0.0.0.0", port=5001, debug=True)
