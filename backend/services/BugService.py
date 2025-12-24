@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional, List
-
+from datetime import datetime
 from backend.models.Bug import Bug, BugStatus, BugPriority
 from backend.repo.BugRepo import BugRepo
+
 
 
 class BugService:
@@ -61,6 +62,39 @@ class BugService:
         if self.repo.create(bug):
             return bug
         raise Exception(f"Fail to create bug")
+    
+    def update_bug_details(
+            self,
+            bug_id: str,
+            title: Optional[str] = None,
+            description: Optional[str] = None,
+         ) -> Bug:
+        
+        if not bug_id:
+            raise ValueError("Bug id is required")
+        
+        bug = self.repo.get_by_id(bug_id)
+        if not bug:
+            raise ValueError("Bug not found")
+        
+        # update if needed
+        if title is not None:
+            bug.title = title
+        if description is not None:
+            bug.description = description
+            
+        # update time
+        bug.updated = datetime.now().isoformat()
+        
+        # re use validation
+        self.validate_bug(bug)
+
+        if self.repo.update(bug):
+            return bug
+
+        raise Exception("Fail to update bug")
+
+
 
     def assign_bug(self, bug_id: str, assigned_to: int) -> Bug:
         """

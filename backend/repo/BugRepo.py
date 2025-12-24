@@ -1,8 +1,7 @@
 import json
 import os
 from typing import List, Optional
-
-from backend.models.Bug import Bug, BugStatus
+from backend.models.Bug import Bug, BugStatus, BugPriority
 
 
 class BugRepo:
@@ -45,20 +44,27 @@ class BugRepo:
                 os.remove(temp_file)
             return False
 
-    @staticmethod
     def get_by_id(self, bug_id: str) -> Optional[Bug]:
         bugs = self.read_all()
-
+        
         for b in bugs:
             if b["id"] == bug_id:
                 return Bug(
-                    id = b["id"],
-                    title = b["title"],
-                    description = b["description"],
-                    status = BugStatus(b["status"]),
-                    screenshot = b.get("screenshot", [])
-                )
+                    id=b["id"],
+                    title=b["title"],
+                    description=b["description"],
+                    status=BugStatus(b["status"]),
+                    priority=BugPriority(b["priority"]),
+                    tester_id=b["tester_id"],
+                    screenshot=b.get("screenshot", []),
+                    assigned_to=b.get("assigned_to"),
+                    created=b.get("created"),
+                    updated=b.get("updated"),
+                    assigned=b.get("assigned")
+                    
+                    )
         return None
+
 
     # For filter method
     def list(self, status: Optional[str]) -> list[Bug]:

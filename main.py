@@ -10,26 +10,27 @@ bug_repo = BugRepo()
 bug_service = BugService(bug_repo)
 bug_controller = BugController(bug_service)
 
+# Routes
 
-#Routes
-
-# Get everything
+# Get all bugs
 @app.route("/api/bugs", methods=["GET"])
-def get_bug():
-    return bug_controller.get_all()
+def get_bugs():
+    return bug_controller.get_all() 
 
-# Create POST request for bug
+# Create bug
 @app.route("/api/bugs", methods=["POST"])
 def create_bug():
     return bug_controller.create()
 
+# Update bug title / description (#6)
+@app.route("/api/bugs/<bug_id>", methods=["PUT", "PATCH"])
+def update_bug(bug_id):
+    return bug_controller.update(bug_id)
+
 # Assign bug to developer
-@app.route("/api/bug/<bug_id>/assign", methods=["POST"])
+@app.route("/api/bugs/<bug_id>/assign", methods=["POST"])
 def assign_bug(bug_id):
     return bug_controller.assign(bug_id)
-
-
-
 
 # Error handling
 @app.errorhandler(404)
@@ -39,6 +40,7 @@ def not_found(e):
 @app.errorhandler(500)
 def internal_error(e):
     return jsonify({"error": "Internal server error"}), 500
+
 
 if __name__ == "__main__":
     print("Starting server...")
