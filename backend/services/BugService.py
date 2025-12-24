@@ -75,3 +75,9 @@ class BugService:
         """
         # Waiting for update_bug feature to be completed
         return self.update_bug(assigned_to, bug_id, status = "IN_PROGRESS")
+
+    def delete_bug(self, bug_id: str) -> bool:
+        deleted = self.repo.delete(bug_id)
+        if not deleted:
+            raise ValueError("Bug not found")
+        return True

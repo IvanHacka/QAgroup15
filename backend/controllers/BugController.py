@@ -63,5 +63,17 @@ class BugController:
             return jsonify(updated.to_dict()), 200
 
         except ValueError as e:
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': str(e)}),
+
+    def delete(self, bug_id: str):
+        # DELETE /api/bugs/<bug_id>
+        try:
+            self.bug_service.delete_bug(bug_id)
+            return jsonify({"message": "Bug deleted"}), 200
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 404
+        except Exception:
+            return jsonify({"error": "Server error"}), 500
+
+
 
