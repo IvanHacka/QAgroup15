@@ -97,6 +97,12 @@ def login_page():
         else:
             return f"Login failed: {message}"
 
+@app.route("/api/bugs/<bug_id>", methods=["DELETE"])
+def delete_bug(bug_id):
+    return bug_controller.delete(bug_id)
+
+
+
 if __name__ == "__main__":
     print("Starting server...")
     print("Bug Tracker API starting...")
