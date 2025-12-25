@@ -1,0 +1,35 @@
+[
+  {
+    "id": "c17174b0-9780-433a-bcf2-d46ad896e9c1",
+    "title": "Login crashes",
+    "description": "App crashes when clicking login",
+    "status": "OPEN",
+    "priority": "HIGH",
+    "tester_id": 1,
+    "screenshot": [],
+    "assigned_to": null,
+    "created": "2025-12-24T10:39:11.706806",
+    "updated": "2025-12-24T10:39:11.706849",
+    "assigned": null
+  },
+  {
+    "id": "51322dc1-8bd2-40ab-87fc-50a46c3121dc",
+    "created_at": "2025-12-25T11:14:42.311915"
+  },
+  {
+    "id": "eaf0c258-de1d-4b27-81a5-73cc3bbf6dd8",
+    "created_at": "2025-12-25T11:19:32.556226"
+  },
+  {
+    "id": "51c00196-bc1c-476a-9ba0-5514f1a735b3",
+    "created_at": "2025-12-25T11:20:48.570273"
+  },
+  {
+    "id": "f639496c-c8a1-4310-81dc-cc06c1ce29df",
+    "created_at": "2025-12-25T11:22:16.019506"
+  },
+  {
+    "id": "e2a8781b-b421-4461-988e-5e8d66994908",
+    "created_at": "2025-12-25T11:23:41.227308"
+  }
+]

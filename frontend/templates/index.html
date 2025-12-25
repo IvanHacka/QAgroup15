@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bug Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Bug Tracker</h1>
+            <div class="header-actions">
+                <button id="newBugButton" class="btn btn1">New Bug</button>
+            </div>
+        </header>
+
+<!--        Bug List-->
+        <div class="bugList" id="bugList">
+            <div class="bug-item">Loading bugs</div>
+        </div>
+
+<!--        Create Bug-->
+        <div class="modal" id="bugModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">New Bug</h1>
+                    <span class="close">&times;</span>
+                </div>
+                <form action="" id="bugForm">
+                    <input type="hidden" id="bugId">
+<!--                    Please put details here-->
+
+<!--                    Buttons-->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn1" id="saveBtn">Save Bug</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+<!--        View Bugs-->
+        <div id="viewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Bugs</h1>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="view-content" id="viewContent">
+<!--                    Will be able to see details here-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>
