@@ -51,3 +51,9 @@ if __name__ == "__main__":
     print("Starting server...")
     print("Bug Tracker API starting...")
     app.run(host="0.0.0.0", port=5001, debug=True)
+    
+#for assign bugs
+@app.route("/api/bugs/assigned/<int:developer_id>", methods=["GET"])
+def get_bugs_assigned_to_developer(developer_id):
+    return bug_controller.get_assigned_bugs(developer_id)
+

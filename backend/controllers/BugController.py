@@ -102,3 +102,15 @@ class BugController:
 
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        
+    def get_assigned_bugs(self, developer_id: int):
+        try:
+            bugs = self.bug_service.get_bugs_assigned_to(developer_id)
+            return jsonify([b.to_dict() for b in bugs]), 200
+        
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        
+        except Exception:
+            return jsonify({"error": "Server error"}), 500
+
