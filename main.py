@@ -1,8 +1,11 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 from backend.controllers.BugController import BugController
 from backend.repo.BugRepo import BugRepo
 from backend.services.BugService import BugService
+
+from backend.services.ScreenshotsServices import ScreenshotsServices
+from backend.api.ScreenShots import upload_screenshots
 
 app = Flask(__name__, template_folder="frontend/templates")
 
@@ -10,8 +13,10 @@ bug_repo = BugRepo()
 bug_service = BugService(bug_repo)
 bug_controller = BugController(bug_service)
 
+# Screenshots service
+screenshots_service = ScreenshotsServices(bug_repo)
 
-#Routes
+# Routes
 
 @app.route("/")
 def index():
@@ -32,8 +37,10 @@ def create_bug():
 def assign_bug(bug_id):
     return bug_controller.assign(bug_id)
 
-
-
+# Upload screenshots for a bug (multipart/form-data)
+@app.route("/api/bugs/<bug_id>/screenshots", methods=["POST"])
+def upload_bug_screenshots(bug_id):
+    return upload_screenshots(request, bug_id, screenshots_service)
 
 # Error handling
 @app.errorhandler(404)

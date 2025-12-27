@@ -15,7 +15,7 @@ class BugRepo:
         os.makedirs(os.path.dirname(self.bug_file), exist_ok=True)
         if not os.path.exists(self.bug_file):
             with open(self.bug_file, "w") as f:
-                json.dump({}, f)
+                json.dump([], f)
 
     def read_all(self) -> List[dict]:
         # Read all bugs
@@ -45,19 +45,14 @@ class BugRepo:
                 os.remove(temp_file)
             return False
 
-    @staticmethod
-    def get_by_id(self, bug_id: str) -> Optional[Bug]:
-        bugs = self.read_all()
 
+    def get_by_id(self, bug_id: str):
+        bugs = self.read_all()
         for b in bugs:
-            if b["id"] == bug_id:
-                return Bug(
-                    id = b["id"],
-                    title = b["title"],
-                    description = b["description"],
-                    status = BugStatus(b["status"]),
-                    screenshot = b.get("screenshot", [])
-                )
+            if b.get("id") == bug_id:
+                # you already have parse_from_dict in Bug
+                from backend.models.Bug import Bug
+                return Bug.parse_from_dict(b)
         return None
 
     # For filter method

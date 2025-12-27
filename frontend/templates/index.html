@@ -4,27 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bug Reporter</title>
+
   <style>
-    body { font-family: Arial, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 12px; }
-    label { display: block; margin-top: 12px; font-weight: 600; }
-    input, textarea, select { width: 100%; padding: 10px; margin-top: 6px; }
-    button { margin-top: 16px; padding: 10px 14px; cursor: pointer; }
-    pre { background: #f5f5f5; padding: 12px; overflow: auto; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 720px;
+      margin: 24px auto;
+      padding: 0 12px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 12px;
+      overflow: auto;
+    }
+    hr {
+      margin: 32px 0;
+    }
   </style>
 </head>
+
 <body>
+
   <h1>Create Bug</h1>
 
   <form id="bugForm">
-    <label for="title">Title *</label>
-    <input id="title" name="title" required maxlength="200" placeholder="Short summary (e.g., Login button crashes)" />
+    <label>Title *</label>
+    <input id="title" required maxlength="200" placeholder="Login button crashes" />
 
-    <label for="description">Description *</label>
-    <textarea id="description" name="description" required maxlength="2000"
-              placeholder="Steps to reproduce, expected vs actual..."></textarea>
+    <label>Description *</label>
+    <textarea id="description" required maxlength="2000"
+      placeholder="Steps to reproduce..."></textarea>
 
-    <label for="status">Status *</label>
-    <select id="status" name="status" required>
+    <label>Status *</label>
+    <select id="status">
       <option value="OPEN">OPEN</option>
       <option value="IN_PROGRESS">IN_PROGRESS</option>
       <option value="CLOSED">CLOSED</option>
@@ -32,30 +59,48 @@
       <option value="FAILED">FAILED</option>
     </select>
 
-    <label for="priority">Priority *</label>
-    <select id="priority" name="priority" required>
+    <label>Priority *</label>
+    <select id="priority">
       <option value="LOW">LOW</option>
       <option value="MEDIUM">MEDIUM</option>
       <option value="HIGH">HIGH</option>
       <option value="CRITICAL">CRITICAL</option>
     </select>
 
-    <label for="tester_id">Tester ID *</label>
-    <input id="tester_id" name="tester_id" type="number" required value="1" min="1" />
+    <label>Tester ID *</label>
+    <input id="tester_id" type="number" value="1" min="1" required />
 
     <button type="submit">Submit Bug</button>
   </form>
 
-  <h2>Result</h2>
-  <pre id="result">(submit a bug)</pre>
+  <h2>Bug Result</h2>
+  <pre id="bugResult">(submit a bug)</pre>
+
+  <hr />
+
+  <h1>Upload Screenshots</h1>
+
+  <form id="shotForm" enctype="multipart/form-data">
+    <label>Bug ID *</label>
+    <input id="bug_id" placeholder="Paste bug id here" required />
+
+    <label>Screenshots (PNG / JPEG) *</label>
+    <input id="screenshots" type="file" multiple accept="image/png,image/jpeg" required />
+
+    <button type="submit">Upload Screenshots</button>
+  </form>
+
+  <h2>Upload Result</h2>
+  <pre id="shotResult">(upload screenshots)</pre>
 
   <script>
-    const form = document.getElementById("bugForm");
-    const result = document.getElementById("result");
+    // CREATE BUG
+    const bugForm = document.getElementById("bugForm");
+    const bugResult = document.getElementById("bugResult");
 
-    form.addEventListener("submit", async (e) => {
+    bugForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      result.textContent = "Submitting...";
+      bugResult.textContent = "Submitting...";
 
       const payload = {
         title: document.getElementById("title").value,
@@ -72,12 +117,49 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json().catch(() => ({}));
-        result.textContent = JSON.stringify({ status: res.status, data }, null, 2);
+        const data = await res.json();
+        bugResult.textContent = JSON.stringify(data, null, 2);
+
+        // Auto-fill bug ID for screenshots
+        if (data.id) {
+          document.getElementById("bug_id").value = data.id;
+        }
+
       } catch (err) {
-        result.textContent = String(err);
+        bugResult.textContent = String(err);
+      }
+    });
+
+    // UPLOAD SCREENSHOTS
+    const shotForm = document.getElementById("shotForm");
+    const shotResult = document.getElementById("shotResult");
+
+    shotForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      shotResult.textContent = "Uploading...";
+
+      const bugId = document.getElementById("bug_id").value.trim();
+      const files = document.getElementById("screenshots").files;
+
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append("screenshots", file);
+      }
+
+      try {
+        const res = await fetch(`/api/bugs/${bugId}/screenshots`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        shotResult.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        shotResult.textContent = String(err);
       }
     });
   </script>
+
 </body>
 </html>

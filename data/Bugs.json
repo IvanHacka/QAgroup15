@@ -24,5 +24,18 @@
       "created": "2025-12-23T16:24:15.109234",
       "updated": "2025-12-23T16:24:15.109245",
       "assigned": null
+   },
+   {
+      "id": "84d32389-c814-4406-b4f7-2a9df155e6e3",
+      "title": "asd",
+      "description": "asd dsa dsa",
+      "status": "CLOSED",
+      "priority": "LOW",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-27T18:21:57.491873",
+      "updated": "2025-12-27T18:21:57.491883",
+      "assigned": null
    }
 ]
