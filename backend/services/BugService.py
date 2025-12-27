@@ -109,53 +109,9 @@ class BugService:
         """
         # Waiting for update_bug feature to be completed
         return self.update_bug(assigned_to, bug_id, status = "IN_PROGRESS")
-    
 
-    def update_bug_status(self, bug_id: str, new_status: str) -> Bug:
-        
-        if not bug_id: 
-            raise ValueError("Bug id is required")
-        if not new_status:
-            raise ValueError("Bug status is required")
-        
-        bug = self.repo.get_by_id(bug_id)
-        if not bug:
+    def delete_bug(self, bug_id: str) -> bool:
+        deleted = self.repo.delete(bug_id)
+        if not deleted:
             raise ValueError("Bug not found")
-        
-        try:
-            status_enum = BugStatus(new_status)
-            
-        except ValueError:
-            raise ValueError("Invalid bug status")
-        
-        allowed_next = {
-        BugStatus.OPEN: {BugStatus.OPEN, BugStatus.IN_PROGRESS},
-        BugStatus.IN_PROGRESS: {BugStatus.IN_PROGRESS, BugStatus.COMPLETED, BugStatus.FAILED},
-        BugStatus.COMPLETED: {BugStatus.COMPLETED, BugStatus.CLOSED},
-        BugStatus.FAILED: {BugStatus.FAILED, BugStatus.CLOSED},
-        BugStatus.CLOSED: {BugStatus.CLOSED},  # closed 唔再改（簡化）
-    }
-        
-        current = bug.status
-        
-        if current in allowed_next and status_enum not in allowed_next[current]:
-            raise ValueError(f"Invalid status transition: {current.value} -> {status_enum.value}")
-        
-        #UPDATE STATUs
-        bug.status = status_enum
-        bug.updated = datetime.now().isoformat()
-        
-        self.validate_bug(bug)
-        
-        if self.repo.update(bug):
-            return bug
-            
-        raise Exception("Fail to update bug status")
-
-
-    
-        
-    
-
-
-    
+        return True

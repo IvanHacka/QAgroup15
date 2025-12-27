@@ -117,3 +117,11 @@ class BugRepo:
     # Might want to display the total number of bugs
     def count(self) -> int:
         return len(self.read_all())
+
+    def delete(self, bug_id: str) -> bool:
+        bugs = self.read_all()
+        new_bugs = [b for b in bugs if b.get("id") != bug_id]
+        if len(new_bugs) == len(bugs):
+            return False
+
+        return self.write_all(new_bugs)
