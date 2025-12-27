@@ -1,0 +1,15 @@
+[
+   {
+      "id": "8241cd0d-4697-4893-89a6-a7cf9f62c607",
+      "title": "Login button not clickable",
+      "description": "Steps: 1) open app 2) click login 3) nothing happens",
+      "status": "IN_PROGRESS",
+      "priority": "LOW",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-25T07:05:59.675328",
+      "updated": "2025-12-25T07:37:12.100976",
+      "assigned": null
+   }
+]

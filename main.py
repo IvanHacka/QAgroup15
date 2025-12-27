@@ -18,25 +18,30 @@ bug_repo = BugRepo()
 bug_service = BugService(bug_repo)
 bug_controller = BugController(bug_service)
 
-# User auth setup
-user_repo = UserRepo()
-user_service = UserService(user_repo)
-user_controller = UserController(user_service)
-
 # Routes
 
 # Get everything
 @app.route("/api/bugs", methods=["GET"])
-def get_bug():
+def get_bugs():
     return bug_controller.get_all()
 
-# Create POST request for bug
+# Create bug
 @app.route("/api/bugs", methods=["POST"])
 def create_bug():
     return bug_controller.create()
 
+# Update bug title / description (#6 user story)
+@app.route("/api/bugs/<bug_id>", methods=["PUT", "PATCH"])
+def update_bug(bug_id):
+    return bug_controller.update(bug_id)
+
+# Update bug status (#13 user story)
+@app.route("/api/bugs/<bug_id>/status", methods=["PUT"])
+def update_bug_status(bug_id):
+    return bug_controller.update_status(bug_id)
+
 # Assign bug to developer
-@app.route("/api/bug/<bug_id>/assign", methods=["POST"])
+@app.route("/api/bugs/<bug_id>/assign", methods=["POST"])
 def assign_bug(bug_id):
     return bug_controller.assign(bug_id)
 

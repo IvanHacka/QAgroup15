@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional, List
-
+from datetime import datetime
 from backend.models.Bug import Bug, BugStatus, BugPriority
 from backend.repo.BugRepo import BugRepo
+
 
 
 class BugService:
@@ -17,7 +18,7 @@ class BugService:
         if not bug.description or len(bug.description) == 0:
             raise ValueError("Bug description is required")
         if len(bug.description) > 2000:
-            raise ValueError("Bug description can't be exceeding 200 characters")
+            raise ValueError("Bug description can't be exceeding 2000 characters")
 
         if not isinstance(bug.status, BugStatus):
             raise ValueError("Bug status is required")
@@ -55,12 +56,45 @@ class BugService:
                Exception: If creation fails
        """
         self.validate_bug(bug)
-        bug.created_at = datetime.now().isoformat()
-        bug.updated_at = datetime.now().isoformat()
+        bug.created = datetime.now().isoformat()
+        bug.updated = datetime.now().isoformat()
 
         if self.repo.create(bug):
             return bug
         raise Exception(f"Fail to create bug")
+    
+    def update_bug_details(
+            self,
+            bug_id: str,
+            title: Optional[str] = None,
+            description: Optional[str] = None,
+         ) -> Bug:
+        
+        if not bug_id:
+            raise ValueError("Bug id is required")
+        
+        bug = self.repo.get_by_id(bug_id)
+        if not bug:
+            raise ValueError("Bug not found")
+        
+        # update if needed
+        if title is not None:
+            bug.title = title
+        if description is not None:
+            bug.description = description
+            
+        # update time
+        bug.updated = datetime.now().isoformat()
+        
+        # re use validation
+        self.validate_bug(bug)
+
+        if self.repo.update(bug):
+            return bug
+
+        raise Exception("Fail to update bug")
+
+
 
     def assign_bug(self, bug_id: str, assigned_to: int) -> Bug:
         """
