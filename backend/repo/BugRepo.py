@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Optional
-from backend.models.Bug import Bug
+from backend.models.Bug import Bug, BugStatus, BugPriority
 
 
 class BugRepo:
@@ -45,7 +45,7 @@ class BugRepo:
     def get_by_id(self, bug_id: str) -> Optional[Bug]:
         """Get a single bug by ID"""
         bugs = self.read_all()
-
+        
         for b in bugs:
             if b["id"] == bug_id:
                 return Bug.from_dict(b)
@@ -53,8 +53,37 @@ class BugRepo:
 
     def list(self) -> List[Bug]:
         """Get all bugs"""
+                return Bug(
+                    id=b["id"],
+                    title=b["title"],
+                    description=b["description"],
+                    status=BugStatus(b["status"]),
+                    priority=BugPriority(b["priority"]),
+                    tester_id=b["tester_id"],
+                    screenshot=b.get("screenshot", []),
+                    assigned_to=b.get("assigned_to"),
+                    created_at=b.get("created"),
+                    updated_at=b.get("updated")
+                    
+                    )
+        return None
+
+
+    # For filter method
+    def list(self, status: Optional[str]) -> list[Bug]:
         bugs_data = self.read_all()
-        bugs = []
+        bugs = (
+                id=b["id"],
+                title=b["title"],
+                description=b["description"],
+                status=BugStatus(b["status"]),
+                priority=BugPriority(b["priority"]),
+                tester_id=b["tester_id"],
+                screenshot=b.get("screenshot", []),
+                assigned_to=b.get("assigned_to"),
+                created_at=b.get("created"),
+                updated_at=b.get("updated")
+        )
 
         for b in bugs_data:
             try:
@@ -81,3 +110,11 @@ class BugRepo:
     # Might want to display the total number of bugs
     def count(self) -> int:
         return len(self.read_all())
+
+    def delete(self, bug_id: str) -> bool:
+        bugs = self.read_all()
+        new_bugs = [b for b in bugs if b.get("id") != bug_id]
+        if len(new_bugs) == len(bugs):
+            return False
+
+        return self.write_all(new_bugs)
