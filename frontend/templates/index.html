@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Tracking System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, textarea, select, button {
+            width: 300px;
+            padding: 6px;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Create Bug Report</h1>
+
+<!-- Success / Error Message -->
+<div id="message"></div>
+
+<!-- Bug Creation Form -->
+<label for="title">Title *</label>
+<input type="text" id="title" placeholder="Bug title">
+
+<label for="description">Description *</label>
+<textarea id="description" placeholder="Describe the bug"></textarea>
+
+<label for="priority">Priority</label>
+<select id="priority">
+    <option value="LOW">Low</option>
+    <option value="MEDIUM">Medium</option>
+    <option value="HIGH">High</option>
+</select>
+
+<button onclick="createBug()">Create Bug</button>
+
+<script>
+function createBug() {
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const priority = document.getElementById("priority").value;
+
+    fetch("/api/bugs", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: title,
+            description: description,
+            priority: priority,
+            status: "OPEN",
+            tester_id: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const messageDiv = document.getElementById("message");
+
+        if (data.message) {
+            messageDiv.innerText = data.message;
+            messageDiv.className = "success";
+
+            // Clear form after success
+            document.getElementById("title").value = "";
+            document.getElementById("description").value = "";
+        } else if (data.error) {
+            messageDiv.innerText = data.error;
+            messageDiv.className = "error";
+        }
+    })
+    .catch(error => {
+        const messageDiv = document.getElementById("message");
+        messageDiv.innerText = "Failed to create bug";
+        messageDiv.className = "error";
+    });
+}
+</script>
+
+</body>
+</html>

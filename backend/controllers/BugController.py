@@ -8,30 +8,36 @@ class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
 
-    # POST /api/bugs
-    def create(self):
-        try:
-            data = request.get_json()
+  #api/bugs
+def create(self):
+    try:
+        data = request.get_json()
 
-            bug = Bug(
-                title=data['title'],
-                description=data['description'],
-                status=BugStatus(data.get('status')),
-                priority=BugPriority(data.get('priority')),
-                tester_id=data.get('tester_id'),
-                assigned_to=data.get('assigned_to'),
-                screenshot=data.get('screenshot', []),
-            )
+        bug = Bug(
+            title=data['title'],
+            description=data['description'],
+            status=BugStatus(data.get('status')),
+            priority=BugPriority(data.get('priority')),
+            tester_id=data.get('tester_id'),
+            assigned_to=data.get('assigned_to'),
+            screenshot=data.get('screenshot', []),
+        )
 
-            created = self.bug_service.create_bug(bug)
-            return jsonify(created.to_dict()), 201
+        created = self.bug_service.create_bug(bug)
 
-        except ValueError as e:
-            return jsonify({'error': str(e)}), 400
-        except KeyError as e:
-            return jsonify({'error': f"Missing required fields {e}"}), 400
-        except Exception:
-            return jsonify({'error': "Server error"}), 500
+        # added success message
+        return jsonify({
+            "message": "Bug created successfully",
+            "bug": created.to_dict()
+        }), 201
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except KeyError as e:
+        return jsonify({'error': f"Missing required fields {e}"}), 400
+    except Exception:
+        return jsonify({'error': "Server error"}), 500
+
 
     # PUT /api/bugs/<bug_id>
     def update(self, bug_id: str):
