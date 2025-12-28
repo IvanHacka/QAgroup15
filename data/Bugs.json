@@ -11,5 +11,31 @@
       "created": "2025-12-25T07:05:59.675328",
       "updated": "2025-12-25T07:37:12.100976",
       "assigned": null
+   },
+   {
+      "id": "7194ede0-5380-4a1b-ba61-c5783271235e",
+      "title": "bug01",
+      "description": "bug here",
+      "status": "OPEN",
+      "priority": "HIGH",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-28T15:15:09.403360",
+      "updated": "2025-12-28T15:15:09.403363",
+      "assigned": null
+   },
+   {
+      "id": "7d8d0a50-d8b9-499b-a12d-748885ac85f4",
+      "title": "bug02",
+      "description": "02",
+      "status": "OPEN",
+      "priority": "MEDIUM",
+      "tester_id": 1,
+      "screenshot": [],
+      "assigned_to": null,
+      "created": "2025-12-28T15:18:19.341419",
+      "updated": "2025-12-28T15:18:19.341422",
+      "assigned": null
    }
 ]

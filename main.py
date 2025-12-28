@@ -12,6 +12,9 @@ from backend.services.UserService import UserService
 
 app = Flask(__name__, template_folder="frontend/templates")
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 # Bug tracking setup
 bug_repo = BugRepo()
