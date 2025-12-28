@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-from flask import render_template, request
+from flask import Flask, jsonify, render_template, request
+from flask_cors import CORS
 
 
 from backend.controllers.BugController import BugController
@@ -10,7 +10,13 @@ from backend.controllers.UserController import UserController
 from backend.repo.UserRepo import UserRepo
 from backend.services.UserService import UserService
 
-app = Flask(__name__, template_folder="frontend/templates")
+app = Flask(
+            __name__,
+            template_folder='frontend/templates',
+            static_folder='frontend/static'
+            )
+CORS(app)
+
 
 
 # Bug tracking setup
@@ -19,6 +25,10 @@ bug_service = BugService(bug_repo)
 bug_controller = BugController(bug_service)
 
 # Routes
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # Get everything
 @app.route("/api/bugs", methods=["GET"])

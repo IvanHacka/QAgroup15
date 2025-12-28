@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional, List
 from datetime import datetime
 from backend.models.Bug import Bug, BugStatus, BugPriority
@@ -43,21 +42,22 @@ class BugService:
 
     def create_bug(self, bug: Bug) -> Bug:
         """
-           Create a new bug with validation
+        Create a new bug - only ID is saved
 
-           Args:
-               bug: Bug object to create
+        Args:
+            bug: Bug object (ID will be auto-generated if not provided)
 
-           Returns:
-               Created Bug object
+        Returns:
+            Created Bug object with ID
 
-           Raises:
-               ValueError: If validation fails
-               Exception: If creation fails
-       """
+        Raises:
+            Exception: If creation fails
+        """
+        # Update timestamp
+
         self.validate_bug(bug)
-        bug.created = datetime.now().isoformat()
-        bug.updated = datetime.now().isoformat()
+        bug.created_at = datetime.now().isoformat()
+
 
         if self.repo.create(bug):
             return bug
@@ -84,7 +84,7 @@ class BugService:
             bug.description = description
             
         # update time
-        bug.updated = datetime.now().isoformat()
+        bug.updated_at = datetime.now().isoformat()
         
         # re use validation
         self.validate_bug(bug)
@@ -94,24 +94,26 @@ class BugService:
 
         raise Exception("Fail to update bug")
 
+    def get_bug(self, bug_id: str) -> Optional[Bug]:
+        """Get a bug by ID"""
+        if not bug_id:
+            raise ValueError("Bug ID is required")
+        return self.repo.get_by_id(bug_id)
 
+    def list_bugs(self) -> List[Bug]:
+        """Get all bugs"""
+        return self.repo.list()
+      
 
-    def assign_bug(self, bug_id: str, assigned_to: int) -> Bug:
-        """
-            Assign bug to a developer
-
-            Args:
-                bug_id: Bug ID (int)
-                assigned_to: Developer ID to assign to (int)
-
+    def count_bugs(self) -> int:
+        """Get total number of bugs"""
+        return self.repo.count()
             Returns:
                 Updated Bug object
-        """
-        # Waiting for update_bug feature to be completed
-        return self.update_bug(assigned_to, bug_id, status = "IN_PROGRESS")
 
     def delete_bug(self, bug_id: str) -> bool:
         deleted = self.repo.delete(bug_id)
         if not deleted:
             raise ValueError("Bug not found")
         return True
+      

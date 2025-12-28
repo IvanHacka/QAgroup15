@@ -7,12 +7,12 @@ from backend.services.BugService import BugService
 class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
-
+        
     # POST /api/bugs
     def create(self):
         try:
             data = request.get_json()
-
+            # Create bug with auto-generated ID
             bug = Bug(
                 title=data['title'],
                 description=data['description'],
@@ -28,10 +28,10 @@ class BugController:
 
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
         except KeyError as e:
             return jsonify({'error': f"Missing required fields {e}"}), 400
-        except Exception:
-            return jsonify({'error': "Server error"}), 500
 
     # PUT /api/bugs/<bug_id>
     def update(self, bug_id: str):
@@ -78,6 +78,15 @@ class BugController:
     # GET /api/bugs
     def get_all(self):
         try:
+            bugs = self.bug_service.list_bugs()
+            return jsonify([bug.to_dict() for bug in bugs]), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    def get_one(self, bug_id: str):
+        try:
+            bug = self.bug_service.get_bug(bug_id)
+        try:
             status = request.args.get('status')
             priority = request.args.get('priority')
             assigned_to = request.args.get('assigned_to')
@@ -100,5 +109,11 @@ class BugController:
             updated = self.bug_service.assign_bug(bug_id, assigned_to)
             return jsonify(updated.to_dict()), 200
 
+            if bug:
+                return jsonify(bug.to_dict()), 200
+            else:
+                return jsonify({'error': 'Bug not found'}), 404
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
