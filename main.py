@@ -1,83 +1,122 @@
-from flask import Flask, jsonify, render_template, request
-from flask_cors import CORS
+# main.py (CLI version - NO Flask)
 
-# Bug
 from backend.controllers.BugController import BugController
 from backend.repo.BugRepo import BugRepo
 from backend.services.BugService import BugService
 
-# User (Login only)
 from backend.controllers.UserController import UserController
 from backend.services.UserService import UserService
 
-app = Flask(
-    __name__,
-    template_folder="frontend/templates",
-    static_folder="frontend/static"
-)
-CORS(app)
 
-# Bug setup
-bug_repo = BugRepo()
-bug_service = BugService(bug_repo)
-bug_controller = BugController(bug_service)
-
-
-# User (login only)
-user_service = UserService()
-user_controller = UserController(user_service)
+def print_menu():
+    print("\n=== Bug Tracking System ===")
+    print("1. List all bugs")
+    print("2. Search bugs")
+    print("3. Create bug")
+    print("4. Update bug details")
+    print("5. Update bug status")
+    print("6. Assign bug")
+    print("7. Delete bug")
+    print("8. Login")
+    print("0. Exit")
 
 
-# Routes
+def main():
+    # ---- Setup ----
+    bug_repo = BugRepo()
+    bug_service = BugService(bug_repo)
+    bug_controller = BugController(bug_service)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+    user_service = UserService()
+    user_controller = UserController(user_service)
 
-# ---- Bug APIs
+    print("Bug Tracking System started (CLI mode)")
 
-@app.route("/api/bugs", methods=["GET"])
-def get_bugs():
-    return bug_controller.get_all()
+    # ---- Main loop ----
+    while True:
+        print_menu()
+        choice = input("Choose an option: ").strip()
 
-@app.route("/api/bugs", methods=["POST"])
-def create_bug():
-    return bug_controller.create()
+        try:
+            if choice == "1":
+                bugs = bug_controller.get_all()
+                for bug in bugs:
+                    print(bug.to_dict())
 
-@app.route("/api/bugs/<bug_id>", methods=["PUT", "PATCH"])
-def update_bug(bug_id):
-    return bug_controller.update(bug_id)
+            elif choice == "2":
+                mode = input("Search mode (title / status / priority): ").strip()
+                query = input("Search query: ").strip()
+                bugs = bug_controller.get_all(mode, query)
+                for bug in bugs:
+                    print(bug.to_dict())
 
-@app.route("/api/bugs/<bug_id>/status", methods=["PUT"])
-def update_bug_status(bug_id):
-    return bug_controller.update_status(bug_id)
+            elif choice == "3":
+                title = input("Title: ")
+                description = input("Description: ")
+                priority = input("Priority (LOW / MEDIUM / HIGH): ")
+                status = input("Status (OPEN / IN_PROGRESS / CLOSED): ")
 
-@app.route("/api/bugs/<bug_id>/assign", methods=["POST"])
-def assign_bug(bug_id):
-    return bug_controller.assign(bug_id)
+                bug = bug_controller.create(
+                    title=title,
+                    description=description,
+                    priority=priority,
+                    status=status
+                )
+                print("Bug created:", bug.to_dict())
 
-@app.route("/api/bugs/<bug_id>", methods=["DELETE"])
-def delete_bug(bug_id):
-    return bug_controller.delete(bug_id)
+            elif choice == "4":
+                bug_id = input("Bug ID: ")
+                title = input("New title (leave blank to skip): ")
+                description = input("New description (leave blank to skip): ")
 
-# Login API 
+                title = title if title else None
+                description = description if description else None
 
-@app.route("/api/login", methods=["POST"])
-def login():
-    return user_controller.login()
+                bug = bug_controller.update(bug_id, title, description)
+                print("Bug updated:", bug.to_dict())
 
-# Error handling
-@app.errorhandler(404)
-def not_found(e):
-    return jsonify({"error": "Not found"}), 404
+            elif choice == "5":
+                bug_id = input("Bug ID: ")
+                status = input("New status: ")
+                bug = bug_controller.update_status(bug_id, status)
+                print("Status updated:", bug.to_dict())
 
-@app.errorhandler(500)
-def internal_error(e):
-    return jsonify({"error": "Internal server error"}), 500
+            elif choice == "6":
+                bug_id = input("Bug ID: ")
+                assigned_to = input("Assign to: ")
+                bug = bug_controller.assign(bug_id, assigned_to)
+                print("Bug assigned:", bug.to_dict())
+
+            elif choice == "7":
+                bug_id = input("Bug ID: ")
+                confirm = input("Are you sure to delete this bug? (y/n): ").lower() == "y"
+                deleted = bug_controller.delete(bug_id, confirm)
+
+                if deleted:
+                    print("Bug deleted successfully")
+                else:
+                    print("Delete cancelled")
+
+            elif choice == "8":
+                username = input("Username: ")
+                password = input("Password: ")
+                success = user_controller.login(username, password)
+
+                if success:
+                    print("Login successful")
+                else:
+                    print("Login failed")
+
+            elif choice == "0":
+                print("Exiting system...")
+                break
+
+            else:
+                print("Invalid option. Please try again.")
+
+        except Exception as e:
+            print("Error:", e)
 
 
-# Run
 if __name__ == "__main__":
-    print("Starting server...")
-    print("Bug Tracker API starting...")
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    main()
