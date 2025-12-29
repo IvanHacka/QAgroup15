@@ -36,10 +36,33 @@ def main():
         choice = input("Choose an option: ").strip()
 
         try:
-            if choice == "1":
+            if choice == "1":#List Bugs
+                print("List Bugs")
+                print("1. List All Bugs(No Order)")
+                print("2.List By Priority(Descending)")
+                ListChoice=input("Choose an option: ").strip()
+
                 bugs = bug_controller.get_all()
-                for bug in bugs:
-                    print(bug.to_dict())
+                if (ListChoice == "1"):
+                    for bug in bugs:
+                        print(bug.to_dict())
+                if (ListChoice == "2"):
+                    # print high priority bugs first
+                    print("-High Priority-")
+                    for bug in bugs:
+                        if bug.to_dict()["priority"] == "HIGH":
+                            print(bug.to_dict())
+                    # then medium
+                    print("-Medium Priority-")
+                    for bug in bugs:
+                        if bug.to_dict()["priority"] == "MEDIUM":
+                            print(bug.to_dict())
+                    # then low
+                    print("-Low Priority-")
+                    for bug in bugs:
+                        if bug.to_dict()["priority"] == "LOW":
+                             print(bug.to_dict())
+
 
             elif choice == "2":
                 mode = input("Search mode (title / id): ").strip()
