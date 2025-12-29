@@ -59,9 +59,7 @@ class BugController:
         return self.bug_service.update_bug_status(bug_id, new_status)
 
     def assign(self, bug_id: str, assigned_to: str) -> Bug:
-        if not assigned_to:
-            raise ValueError("Assigned user cannot be empty")
-
+        # Assign a user
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
     # GET all

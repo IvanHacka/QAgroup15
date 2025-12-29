@@ -27,8 +27,11 @@ def main():
     user_service = UserService()
     user_controller = UserController(user_service)
 
-    print("Bug Tracking System started (CLI mode)")
 
+    # User login first
+    login(user_controller)
+
+    print("Bug Tracking System started")
 
     # print menu after every entry to wait for next input
     while True:
@@ -75,14 +78,16 @@ def main():
 
             elif choice == "5":
                 bug_id = input("Bug ID: ")
-                status = input("New status: ")
+                status = input("New status: ").strip().upper()
                 bug = bug_controller.update_status(bug_id, status)
                 print("Status updated:", bug.to_dict())
 
             elif choice == "6":
-                bug_id = input("Bug ID: ")
-                assigned_to = input("Assign to: ")
+                bug_id = input("Bug ID: ").strip()
+                assigned_to = input("Assign to: ").strip()
                 bug = bug_controller.assign(bug_id, assigned_to)
+                print("Bug assigned successful")
+                print(f"Bug assigned to {bug.assigned_to}")
                 print("Bug assigned:", bug.to_dict())
 
 
@@ -110,6 +115,20 @@ def main():
 
         except Exception as e:
             print("Error:", e)
+
+
+def login(user):
+    print("Login Required")
+
+    while True:
+        username = input("Username: ")
+        password = input("Password: ")
+
+        if user.login(username, password):
+            print("Login successful\n")
+            return True
+        else:
+            print("Login failed\n")
 
 
 if __name__ == "__main__":
