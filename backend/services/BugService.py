@@ -110,6 +110,34 @@ class BugService:
 
         raise Exception("Failed to update bug")
 
+    def update_bug_status(self, bug_id: str, new_status: str) -> Bug:
+        bug = self.get_bug(bug_id)
+
+        try:
+            bug.status = BugStatus(new_status)
+        except ValueError:
+            raise ValueError("Invalid bug status")
+
+        bug.updated_at = datetime.now().isoformat()
+
+        if self.repo.update(bug):
+            return bug
+
+        raise Exception("Failed to update bug status")
+
+    def assign_bug(self, bug_id: str, assigned_to: str) -> Bug:
+        bug = self.get_bug(bug_id)
+
+        if not assigned_to:
+            raise ValueError("Bug need to be assigned to a user")
+
+        bug.assigned_to = assigned_to
+        bug.updated_at = datetime.now().isoformat()
+
+        if self.repo.update(bug):
+            return bug
+        raise Exception("Failed to assign bug")
+
     def delete_bug(self, bug_id: str) -> bool:
         if not self.repo.delete(bug_id):
             raise ValueError("Bug not found")
