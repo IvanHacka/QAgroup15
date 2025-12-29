@@ -41,6 +41,7 @@ def main():
                 print("0.List Number of Open & Closed Bugs")
                 print("1. List All Bugs(No Order)")
                 print("2.List By Priority(Descending)")
+                print("3.List in alphabetical order(Title A-Z)")
 
                 ListChoice=input("Choose an option: ").strip()
 
@@ -74,6 +75,11 @@ def main():
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "LOW":
                              print(bug.to_dict())
+
+                elif ListChoice == "3":#print in alphabetical order
+                    BugsAlphabetical=sorted(bugs, key=lambda bug: bug.title.lower())#orders list of bugs
+                    for bug in BugsAlphabetical:
+                        print(bug.to_dict())
 
 
             elif choice == "2":
