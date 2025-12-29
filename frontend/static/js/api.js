@@ -19,7 +19,23 @@ class BugAPI {
             const error = await response.json();
             throw new Error(error.error || 'Failed to create bug');
         }
-        return response.json()
+        return response.json();
+    }
+
+    static async updateBug(bug_id, bugData){
+        const response = await fetch(`${BASE_URL}/bugs/${bug_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bugData)
+        });
+
+        if(!response.ok){
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to update bug');
+        }
+        return response.json();
     }
 
     static async assignBug(bug_id, assignedTo) {
@@ -34,4 +50,22 @@ class BugAPI {
         if(!response.ok) throw new Error('Failed to assign bug');
         return response.json();
     }
+
+    static async deleteBug(bugId) {
+  const response = await fetch(`${BASE_URL}/bugs/${bugId}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    let msg = 'Failed to delete bug';
+    try {
+      const data = await response.json();
+      msg = data.error || msg;
+    } catch (_) {}
+    throw new Error(msg);
+  }
+
+  return response.json(); 
+}
+
 }

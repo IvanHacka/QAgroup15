@@ -1,5 +1,4 @@
 from flask import request, jsonify
-
 from backend.models.Bug import BugPriority, BugStatus, Bug
 from backend.services.BugService import BugService
 
@@ -8,32 +7,30 @@ class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
         
-    # POST /api/bugs
+    # P0st
     def create(self):
         try:
             data = request.get_json()
-            # Create bug with auto-generated ID
             bug = Bug(
-                title=data['title'],
-                description=data['description'],
-                status=BugStatus(data.get('status')),
-                priority=BugPriority(data.get('priority')),
-                tester_id=data.get('tester_id'),
-                assigned_to=data.get('assigned_to'),
-                screenshot=data.get('screenshot', []),
+                title=data["title"],
+                description=data["description"],
+                priority=BugPriority(data["priority"]),
+                status=BugStatus(data["status"]),
+                tester_id=data.get("tester_id"),
+                assigned_to=data.get("assigned_to")
             )
 
             created = self.bug_service.create_bug(bug)
             return jsonify(created.to_dict()), 201
 
+        except KeyError as e:
+            return jsonify({'error': f"Missing required fields {e}"}), 400
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-        except KeyError as e:
-            return jsonify({'error': f"Missing required fields {e}"}), 400
 
-    # PUT /api/bugs/<bug_id>
+    # Put
     def update(self, bug_id: str):
         try:
             data = request.get_json() or {}
@@ -55,7 +52,7 @@ class BugController:
         except Exception:
             return jsonify({"error": "Server error"}), 500
 
-    # PUT /api/bugs/<bug_id>/status   (#13)
+    # Put statas
     def update_status(self, bug_id: str):
         try:
             data = request.get_json()
@@ -75,7 +72,7 @@ class BugController:
         except Exception:
             return jsonify({"error": "Server error"}), 500
 
-    # GET /api/bugs
+    # get bug
     def get_all(self):
         try:
             bugs = self.bug_service.list_bugs()
@@ -83,23 +80,19 @@ class BugController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    # get bug id
     def get_one(self, bug_id: str):
         try:
             bug = self.bug_service.get_bug(bug_id)
-        try:
-            status = request.args.get('status')
-            priority = request.args.get('priority')
-            assigned_to = request.args.get('assigned_to')
-
-            bugs = self.bug_service.list_bugs(
-                status, priority, assigned_to
-            )
-            return jsonify([bug.to_dict() for bug in bugs]), 200
-
+            return jsonify(bug.to_dict()), 200
+        
         except ValueError as e:
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': str(e)}), 404
+            
+        except Exception:
+            return jsonify({'error': 'Server error'}), 500
 
-    # POST /api/bugs/<bug_id>/assign
+    # POST assigns
     def assign(self, bug_id: str):
         try:
             assigned_to = request.get_json().get('assigned_to')
@@ -109,11 +102,19 @@ class BugController:
             updated = self.bug_service.assign_bug(bug_id, assigned_to)
             return jsonify(updated.to_dict()), 200
 
-            if bug:
-                return jsonify(bug.to_dict()), 200
-            else:
-                return jsonify({'error': 'Bug not found'}), 404
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+    # DELETE 
+    def delete(self, bug_id: str):
+        try:
+            self.bug_service.delete_bug(bug_id)
+            return jsonify({"message": "Bug deleted"}), 200
+
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 404
+
+        except Exception:
+            return jsonify({"error": "Server error"}), 500

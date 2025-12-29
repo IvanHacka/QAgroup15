@@ -1,39 +1,19 @@
 class UserService:
-    def __init__(self, user_repo):
-        self.user_repo = user_repo
-
-    def register(self, username, password):
-        users = self.user_repo.load_users()
-
-        if username is None or username.strip() == "":
-            return False, "Username cannot be empty"
-
-        if password is None or password.strip() == "":
-            return False, "Password cannot be empty"
-
-        username = username.strip()
-
-        if username in users:
-            return False, "Username already in use"
-
-        users[username] = password
-        self.user_repo.save_users(users)
-
-        return True, "User registered successfully"
+    def __init__(self):
+        # fixed account 
+        self.users = {
+            "staff01": "password123",
+            "staff02": "password123"
+        }
 
     def login(self, username, password):
-        users = self.user_repo.load_users()
+        if not username or not password:
+            return False, "Username and password are required"
 
-        if username is None :
-            return False, "Username cannot be empty"
-
-        if password is None :
-            return False, "Password cannot be empty"
-
-        username = username.strip()
-
-        if username in users and users[username] == password:
-            return True, "Login successful"
+        if username in self.users and self.users[username] == password:
+            return True, {
+                "username": username,
+                "role": "staff"
+            }
 
         return False, "Invalid username or password"
-
