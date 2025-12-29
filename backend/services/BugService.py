@@ -39,17 +39,46 @@ class BugService:
         return self.repo.list_all()
 
     # Search
-    def search_bugs(self, mode: str, query: str) -> List[Bug]:
+    def search_bugs(self, mode: str, query) -> List[Bug]:
         if not query:
             return self.repo.list_all()
 
-        if mode == "id":
-            return self.repo.search_by_id(query)
+        mode = mode.lower()
 
+        # search by id
+        if mode == "id":
+            return self.repo.search_by_id(str(query))
+
+        # search by tittle
         if mode == "title":
-            return self.repo.search_by_title(query)
+            return self.repo.search_by_title(str(query))
+
+        # search by status
+        if mode == "status":
+            if isinstance(query, BugStatus):
+                status = query
+            else:
+                try:
+                    status = BugStatus[str(query).upper()]
+                except KeyError:
+                    raise ValueError("Invalid bug status")
+
+            return self.repo.search_by_status(status)
+
+        # search by priority
+        if mode == "priority":
+            if isinstance(query, BugPriority):
+                priority = query
+            else:
+                try:
+                    priority = BugPriority[str(query).upper()]
+                except KeyError:
+                    raise ValueError("Invalid bug priority")
+
+            return self.repo.search_by_priority(priority)
 
         raise ValueError("Invalid search mode")
+
 
     # create
     def create_bug(self, bug: Bug) -> Bug:
@@ -85,3 +114,4 @@ class BugService:
         if not self.repo.delete(bug_id):
             raise ValueError("Bug not found")
         return True
+    

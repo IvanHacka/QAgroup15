@@ -1,11 +1,12 @@
 from typing import Optional, List
 
-from backend.models.Bug import BugPriority, BugStatus, Bug
+from backend.models.Bug import Bug, BugPriority, BugStatus
 from backend.services.BugService import BugService
 
 
 # ****No more flask****
 class BugController:
+  
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
 
@@ -25,23 +26,20 @@ class BugController:
         bug = Bug(
             title=title,
             description=description,
-            priority=BugPriority(priority),
-            status=BugStatus(status),
+            priority=BugPriority[priority.upper()],
+            status=BugStatus[status.upper()],
             tester_id=tester_id,
             assigned_to=assigned_to
         )
         return self.bug_service.create_bug(bug)
 
-    # update
+    # update deatials
     def update(
         self,
         bug_id: str,
         title: Optional[str] = None,
         description: Optional[str] = None
     ) -> Bug:
-        """
-        Update bug title and/or description.
-        """
         if title is None and description is None:
             raise ValueError("Nothing to update")
 
@@ -58,6 +56,7 @@ class BugController:
 
         return self.bug_service.update_bug_status(bug_id, new_status)
 
+    # assign bug
     def assign(self, bug_id: str, assigned_to: str) -> Bug:
         if not assigned_to:
             raise ValueError("Assigned user cannot be empty")
@@ -67,29 +66,24 @@ class BugController:
     # GET all
     # Search feature
     def get_all(
-    self,
-    search_mode: Optional[str] = None,
-    query: Optional[str] = None
-) -> List[Bug]:
-        
+        self,
+        search_mode: Optional[str] = None,
+        query: Optional[str] = None
+    ) -> List[Bug]:
+
+        # No search =list all
         if not search_mode or not query:
             return self.bug_service.list_bugs()
-        
+
+        #..
         mode = search_mode.strip().lower()
-        
         q = query.strip()
 
-        # Searhc by title
-        if mode == "title":
-            return self.bug_service.search_bugs("title", q)
+        # validate, can for whit box later
+        if mode not in ("id", "title", "status", "priority"):
+            raise ValueError("Invalid search mode")
 
-        if mode == "id":
-            return self.bug_service.search_bugs("id", q)
-
-        else:
-                raise ValueError("Invalid search mode")
-
-
+        return self.bug_service.search_bugs(mode, q)
 
     # GET by id
     def get_one(self, bug_id: str) -> Bug:
