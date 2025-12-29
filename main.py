@@ -32,7 +32,7 @@ def main():
 
     print("Bug Tracking System started (CLI mode)")
 
-    # ---- Main loop ----
+    #main loop
     while True:
         print_menu()
         choice = input("Choose an option: ").strip()
