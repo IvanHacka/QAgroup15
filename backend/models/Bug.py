@@ -51,10 +51,6 @@ class Bug:
 
     @staticmethod
     def from_dict(data: dict) -> "Bug":
-        """
-        Safe constructor from dict.
-        Will raise ValueError for invalid bug records.
-        """
 
         # just in case）
         if "title" not in data or "description" not in data:

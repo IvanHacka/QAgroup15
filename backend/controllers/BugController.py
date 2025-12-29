@@ -4,13 +4,9 @@ from backend.models.Bug import Bug, BugPriority, BugStatus
 from backend.services.BugService import BugService
 
 
+# ****No more flask****
 class BugController:
-    """
-    Pure Python controller (NO Flask, NO HTTP, NO JSON).
-    Controller ONLY handles user input (strings) and flow control.
-    Business logic and Enum conversion are handled by Service.
-    """
-
+  
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
 
@@ -53,7 +49,7 @@ class BugController:
             description=description
         )
 
-    # status
+    # update sattus
     def update_status(self, bug_id: str, new_status: str) -> Bug:
         if not new_status:
             raise ValueError("Status cannot be empty")
@@ -67,7 +63,8 @@ class BugController:
 
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
-    # search
+    # GET all
+    # Search feature
     def get_all(
         self,
         search_mode: Optional[str] = None,
@@ -88,14 +85,15 @@ class BugController:
 
         return self.bug_service.search_bugs(mode, q)
 
-    # get one
+    # GET by id
     def get_one(self, bug_id: str) -> Bug:
         return self.bug_service.get_bug(bug_id)
 
-    # delete
+    # DELETE
+    # (Confirmation #32)
     def delete(self, bug_id: str, confirm: bool) -> bool:
+        self.bug_service.delete_bug(bug_id)
+        #add confirmation here
         if not confirm:
             return False
-
-        self.bug_service.delete_bug(bug_id)
         return True
