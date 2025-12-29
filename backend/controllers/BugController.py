@@ -97,7 +97,9 @@ class BugController:
 
     # DELETE
     # (Confirmation #32)
-    def delete(self, bug_id: str) -> bool:
+    def delete(self, bug_id: str, confirm: bool) -> bool:
         self.bug_service.delete_bug(bug_id)
         #add confirmation here
+        if not confirm:
+            return False
         return True
