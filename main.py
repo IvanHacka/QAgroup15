@@ -38,15 +38,27 @@ def main():
         try:
             if choice == "1":#List Bugs
                 print("List Bugs")
+                print("0.List Number of Open & Closed Bugs")
                 print("1. List All Bugs(No Order)")
                 print("2.List By Priority(Descending)")
+
                 ListChoice=input("Choose an option: ").strip()
 
                 bugs = bug_controller.get_all()
-                if (ListChoice == "1"):
+                if ListChoice == "0":
+                    OpenBugs=0
+                    ClosedBugs=0
+                    for bug in bugs:
+                        if bug.to_dict()["status"] =="OPEN":
+                            OpenBugs+=1
+                        elif bug.to_dict()["status"] =="CLOSED":
+                            ClosedBugs+=1
+                    print("Open Bugs: " + str(OpenBugs))
+                    print("Closed Bugs: " + str(ClosedBugs))
+                elif ListChoice == "1":
                     for bug in bugs:
                         print(bug.to_dict())
-                if (ListChoice == "2"):
+                elif ListChoice == "2":
                     # print high priority bugs first
                     print("-High Priority-")
                     for bug in bugs:
