@@ -38,9 +38,10 @@ def main():
         try:
             if choice == "1":#List Bugs
                 print("List Bugs")
-                print("0.List Number of Open & Closed Bugs")
+                print("0. List Number of Open & Closed Bugs")
                 print("1. List All Bugs(No Order)")
-                print("2.List By Priority(Descending)")
+                print("2. List By Priority(Descending)")
+                print("3. List in Alphabetical order(Title A-Z)")
 
                 ListChoice=input("Choose an option: ").strip()
 
@@ -64,17 +65,20 @@ def main():
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "HIGH":
                             print(bug.to_dict())
-                    # then medium
+                    # then print medium priority
                     print("-Medium Priority-")
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "MEDIUM":
                             print(bug.to_dict())
-                    # then low
+                    # then low priority
                     print("-Low Priority-")
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "LOW":
                              print(bug.to_dict())
-
+                elif ListChoice == "3":
+                    BugsAlphabetical=sorted(bugs, key=lambda bug: bug.title.lower())#new dict of bugs but sorted alphabetically
+                    for bug in BugsAlphabetical:
+                        print(bug.to_dict())
 
             elif choice == "2":
                 mode = input("Search mode (title / id): ").strip()
