@@ -1,5 +1,3 @@
-# main.py (CLI version - NO Flask)
-
 from backend.controllers.BugController import BugController
 from backend.repo.BugRepo import BugRepo
 from backend.services.BugService import BugService
@@ -20,9 +18,8 @@ def print_menu():
     print("8. Login")
     print("0. Exit")
 
-
+# I have done
 def main():
-    # ---- Setup ----
     bug_repo = BugRepo()
     bug_service = BugService(bug_repo)
     bug_controller = BugController(bug_service)
@@ -32,7 +29,8 @@ def main():
 
     print("Bug Tracking System started (CLI mode)")
 
-    # ---- Main loop ----
+
+    # print menu after every entry to wait for next input
     while True:
         print_menu()
         choice = input("Choose an option: ").strip()
@@ -44,7 +42,7 @@ def main():
                     print(bug.to_dict())
 
             elif choice == "2":
-                mode = input("Search mode (title / status / priority): ").strip()
+                mode = input("Search mode (title / id): ").strip()
                 query = input("Search query: ").strip()
                 bugs = bug_controller.get_all(mode, query)
                 for bug in bugs:
@@ -89,13 +87,7 @@ def main():
 
             elif choice == "7":
                 bug_id = input("Bug ID: ")
-                confirm = input("Are you sure to delete this bug? (y/n): ").lower() == "y"
-                deleted = bug_controller.delete(bug_id, confirm)
-
-                if deleted:
-                    print("Bug deleted successfully")
-                else:
-                    print("Delete cancelled")
+                bug_controller.delete(bug_id)
 
             elif choice == "8":
                 username = input("Username: ")
