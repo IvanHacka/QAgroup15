@@ -85,9 +85,11 @@ def main():
                 bug = bug_controller.assign(bug_id, assigned_to)
                 print("Bug assigned:", bug.to_dict())
 
+
             elif choice == "7":
                 bug_id = input("Bug ID: ")
-                bug_controller.delete(bug_id)
+                confirm = input("Are you sure to delete this bug? (y/n): ").lower == "y"
+                bug_controller.delete(bug_id, confirm)
 
             elif choice == "8":
                 username = input("Username: ")
