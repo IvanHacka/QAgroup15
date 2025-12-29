@@ -2,6 +2,7 @@ const BASE_URL = '/api';
 
 class BugAPI {
     static async getBugs(){
+        console.log("Fetching ...")
         const response = await fetch(`${BASE_URL}/bugs`);
         if(!response.ok) throw new Error("Failed to fetch.");
         return response.json();

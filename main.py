@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 
+from data.account import Account
+
 
 from backend.controllers.BugController import BugController
 from backend.repo.BugRepo import BugRepo
@@ -28,6 +30,8 @@ bug_controller = BugController(bug_service)
 
 @app.route('/')
 def index():
+    if not g.current_user:
+        return redirect('/login')
     return render_template('index.html')
 
 # Get everything
@@ -60,29 +64,43 @@ def assign_bug(bug_id):
 def register_user():
     return user_controller.register()
 
-@app.route("/register", methods=["GET", "POST"])
-def register_page():
-    if request.method == "GET":
-        # show registration form
-        return render_template("register.html")
+# @app.route("/register", methods=["GET", "POST"])
+# def login():
+#     if request.method == "GET":
+#         # show registration form
+#         return render_template("register.html")
+#
+#     if request.method == "POST":
+#         # get form data
+#         username = request.form.get("username")
+#         password = request.form.get("password")
+#
+#         ok, message = user_service.register(username, password)
+#
+#         if ok:
+#             return f"Registration successful. You can now <a href='/login'>login</a>."
+#         else:
+#             return f"Registration failed: {message}"
 
-    if request.method == "POST":
-        # get form data
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
         username = request.form.get("username")
         password = request.form.get("password")
 
-        ok, message = user_service.register(username, password)
+        user = ACCOUNT.get(username)
 
-        if ok:
-            return f"Registration successful. You can now <a href='/login'>login</a>."
-        else:
-            return f"Registration failed: {message}"
+        if user and check_password_hash(user["password"], password):
+            session["user"] = {
+                "username": user["username"],
+                "role": user["role"]
+            }
+            return redirect("/")
 
+        return render_template("login.html", error="Invalid credentials")
 
-# Login user
-@app.route("/api/users/login", methods=["POST"])
-def login_user():
-    return user_controller.login()
+    return render_template("login.html")
 
 # Error handling
 
@@ -94,23 +112,34 @@ def not_found(e):
 def internal_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/login", methods=["GET", "POST"])
-def login_page():
-    if request.method == "GET":
-        # show login form
-        return render_template("login.html")
+# @app.route("/login", methods=["GET", "POST"])
+# def login_page():
+#     if request.method == "GET":
+#         # show login form
+#         return render_template("login.html")
+#
+#     if request.method == "POST":
+#         # read form input
+#         username = request.form.get("username")
+#         if username in ACCOUNT:
+#             session['user'] = ACCOUNT[username]
+#             return redirect("/")
+#
+#         return render_template("login.html", error=f"User {username} not found.")
+#
+#     return render_template("login.html")
 
-    if request.method == "POST":
-        # read form input
-        username = request.form.get("username")
-        password = request.form.get("password")
+        # ok, message = user_service.login(username, password)
 
-        ok, message = user_service.login(username, password)
-
-        if ok:
-            return f"Login successful{username}"
-        else:
-            return f"Login failed: {message}"
+        # if ok:
+        #     return f"Login successful{username}"
+        # else:
+        #     return f"Login failed: {message}"
+# Log out
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
 @app.route("/api/bugs/<bug_id>", methods=["DELETE"])
 def delete_bug(bug_id):

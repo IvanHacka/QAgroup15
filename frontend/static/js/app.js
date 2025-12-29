@@ -33,6 +33,8 @@ class BugTracker {
 
     async loadBugs() {
         try {
+//          Console
+            console.log("Loading bugs")
             this.allBugs = await BugAPI.getBugs();
             this.bugs = [...this.allBugs];
             this.renderBugs(this.bugs);
@@ -64,11 +66,12 @@ class BugTracker {
             <div class="bug-item" data-bug-id="${bug.id}" style="cursor: pointer; padding: 20px; border: 2px solid #ddd; margin: 10px 0; border-radius: 8px; transition: all 0.2s;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
+                        <div>${this.escapeHtml(bug.title)}<div>
                         <div style="font-size: 1.2em; font-weight: bold; color: #333;">
-                            Bug ID: #${bug.id.substring(0, 8)}
+                            Bug ID: #${bug.id.substring(0, 8)} | Status: ${bug.status} | Priority: ${bug.priority}
                         </div>
                         <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
-                            Created: ${this.formatDate(bug.created_at)}
+                            Created: ${this.formatDate(bug.created)}
                         </div>
                     </div>
                     <div style="font-size: 2em;"></div>
@@ -96,8 +99,16 @@ class BugTracker {
 
     async saveBug() {
         try {
-            // Create bug with empty object - ID will be auto-generated
-            const bugData = {};
+            // Create bug with empty object
+            // ID will be auto-generated
+            // fixed - send details instead of empty obj
+            const bugData = {
+                title: "Test Bug " + Date.now(),  // Temporary test data
+                description: "This is a test bug description",
+                status: "OPEN",
+                priority: "MEDIUM",
+                tester_id: 1
+            };
 
             const createdBug = await BugAPI.createBug(bugData);
 
@@ -127,20 +138,52 @@ class BugTracker {
         modal.dataset.bugId = bugId;
 
         content.innerHTML = `
+//            <div style="padding: 20px;">
+//                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+//                    <div style="font-weight: bold; color: #666; margin-bottom: 5px;">Bug ID</div>
+//                    <div style="font-size: 1.1em; font-family: monospace; color: #333;">${bug.id}</div>
+//                </div>
+//
+//                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+//                    <div style="font-weight: bold; color: #666; margin-bottom: 5px;">Created At</div>
+//                    <div style="color: #333;">${this.formatDate(bug.created_at)}</div>
+//                </div>
+//            </div>
             <div style="padding: 20px;">
-                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                    <div style="font-weight: bold; color: #666; margin-bottom: 5px;">Bug ID</div>
-                    <div style="font-size: 1.1em; font-family: monospace; color: #333;">${bug.id}</div>
+                <div style="margin-bottom: 15px;">
+                    <strong>ID:</strong> ${bug.id}
                 </div>
-
-                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                    <div style="font-weight: bold; color: #666; margin-bottom: 5px;">Created At</div>
-                    <div style="color: #333;">${this.formatDate(bug.created_at)}</div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Title:</strong> ${this.escapeHtml(bug.title)}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Description:</strong> ${this.escapeHtml(bug.description)}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Status:</strong> ${bug.status}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Priority:</strong> ${bug.priority}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Created:</strong> ${this.formatDate(bug.created)}
                 </div>
             </div>
         `;
 
         modal.classList.add('show');
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+          ;
     }
 
     formatDate(isoString) {

@@ -31,9 +31,9 @@ class BugService:
         return self.repo.get_by_id(bug_id)
 
     # for filtering
-    def list_bugs(self, status: Optional[str], priority: Optional[str],
-                  assigned_to: Optional[str]) -> List[Bug]:
-        bugs = self.repo.list(status = status)
+    def list_bugs(self, status: Optional[str] = None, priority: Optional[str] = None,
+                  assigned_to: Optional[str] = None) -> List[Bug]:
+        bugs = self.repo.list()
         # Add other filtering here
 
 
@@ -41,25 +41,14 @@ class BugService:
 
 
     def create_bug(self, bug: Bug) -> Bug:
-        """
-        Create a new bug - only ID is saved
-
-        Args:
-            bug: Bug object (ID will be auto-generated if not provided)
-
-        Returns:
-            Created Bug object with ID
-
-        Raises:
-            Exception: If creation fails
-        """
-        # Update timestamp
 
         self.validate_bug(bug)
-        bug.created_at = datetime.now().isoformat()
+        # Update timestamp
+        bug.created = datetime.now().isoformat()
 
 
         if self.repo.create(bug):
+            print(f"Service: Bug {bug.id} created.")
             return bug
         raise Exception(f"Fail to create bug")
     
@@ -84,9 +73,9 @@ class BugService:
             bug.description = description
             
         # update time
-        bug.updated_at = datetime.now().isoformat()
+        bug.updated = datetime.now().isoformat()
         
-        # re use validation
+        # reuse validation
         self.validate_bug(bug)
 
         if self.repo.update(bug):
@@ -94,22 +83,26 @@ class BugService:
 
         raise Exception("Fail to update bug")
 
-    def get_bug(self, bug_id: str) -> Optional[Bug]:
-        """Get a bug by ID"""
+    # Assign bug to developer
+    def assign_bug(self, bug_id: str, assigned_to: int) -> Bug:
         if not bug_id:
             raise ValueError("Bug ID is required")
-        return self.repo.get_by_id(bug_id)
 
-    def list_bugs(self) -> List[Bug]:
-        """Get all bugs"""
-        return self.repo.list()
-      
+        bug = self.repo.get_by_id(bug_id)
+        if not bug:
+            raise ValueError(f"Bug with ID {bug_id} not found")
+
+        bug.assigned_to = assigned_to
+        bug.updated = datetime.now().isoformat()
+
+        if self.repo.update(bug):
+            return bug
+
+        raise Exception("Failed to assign bug")
 
     def count_bugs(self) -> int:
         """Get total number of bugs"""
         return self.repo.count()
-            Returns:
-                Updated Bug object
 
     def delete_bug(self, bug_id: str) -> bool:
         deleted = self.repo.delete(bug_id)

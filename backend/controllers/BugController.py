@@ -16,9 +16,9 @@ class BugController:
             bug = Bug(
                 title=data['title'],
                 description=data['description'],
-                status=BugStatus(data.get('status')),
-                priority=BugPriority(data.get('priority')),
-                tester_id=data.get('tester_id'),
+                status=BugStatus(data.get('status', 'OPEN')), # default value "OPEN"
+                priority=BugPriority(data.get('priority', 'MEDIUM')), # default value "MEDIUM"
+                tester_id=data.get('tester_id', 1), # default value 1
                 assigned_to=data.get('assigned_to'),
                 screenshot=data.get('screenshot', []),
             )
@@ -29,6 +29,8 @@ class BugController:
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
         except KeyError as e:
             return jsonify({'error': f"Missing required fields {e}"}), 400
@@ -86,18 +88,17 @@ class BugController:
     def get_one(self, bug_id: str):
         try:
             bug = self.bug_service.get_bug(bug_id)
-        try:
-            status = request.args.get('status')
-            priority = request.args.get('priority')
-            assigned_to = request.args.get('assigned_to')
 
-            bugs = self.bug_service.list_bugs(
-                status, priority, assigned_to
-            )
-            return jsonify([bug.to_dict() for bug in bugs]), 200
-
+            if bug:
+                return jsonify(bug.to_dict()), 200
+            else:
+                return jsonify({"error": "Bug not found"}), 404
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': str(e)}), 500
 
     # POST /api/bugs/<bug_id>/assign
     def assign(self, bug_id: str):
@@ -116,4 +117,16 @@ class BugController:
         except ValueError as e:
             return jsonify({'error': str(e)}), 400
         except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # DELETE /api/bugs/<bug_id>/delete
+    def delete(self, bug_id: str):
+        try:
+            self.bug_service.delete_bug(bug_id)
+            return jsonify({'message': 'Bug deleted successfully'}), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
