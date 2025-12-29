@@ -31,12 +31,10 @@ class BugRepo:
             print(f"Error writing bugs: {e}")
             return False
 
-    
     # CRUD
-
     def create(self, bug: Bug) -> bool:
         bugs = self.read_all()
-        if any(b.get("id") == bug.id for b in bugs):
+        if any(b["id"] == bug.id for b in bugs):
             return False
         bugs.append(bug.to_dict())
         return self.write_all(bugs)
@@ -58,18 +56,11 @@ class BugRepo:
 
     def update(self, bug: Bug) -> bool:
         bugs = self.read_all()
-        updated = False
-
         for i, b in enumerate(bugs):
             if b.get("id") == bug.id:
-                bugs[i] = bug.to_dict() 
-                updated = True
-                break
-
-        if not updated:
-            return False
-
-        return self.write_all(bugs)
+                bugs[i] = bug.to_dict()
+                return self.write_all(bugs)
+        return False
 
     def delete(self, bug_id: str) -> bool:
         bugs = self.read_all()
@@ -78,5 +69,17 @@ class BugRepo:
             return False
         return self.write_all(new_bugs)
 
-    def count(self) -> int:
-        return len(self.read_all())
+    # Search here
+    def search_by_id(self, keyword: str) -> List[Bug]:
+        return [
+            Bug.from_dict(b)
+            for b in self.read_all()
+            if keyword.lower() in b.get("id", "").lower()
+        ]
+
+    def search_by_title(self, keyword: str) -> List[Bug]:
+        return [
+            Bug.from_dict(b)
+            for b in self.read_all()
+            if keyword.lower() in b.get("title", "").lower()
+        ]

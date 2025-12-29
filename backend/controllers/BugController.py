@@ -6,8 +6,8 @@ from backend.services.BugService import BugService
 class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
-        
-    # P0st
+
+    # POST api/bugs
     def create(self):
         try:
             data = request.get_json()
@@ -30,7 +30,7 @@ class BugController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    # Put
+    # PUT api/bugs/<bug_id>
     def update(self, bug_id: str):
         try:
             data = request.get_json() or {}
@@ -52,7 +52,7 @@ class BugController:
         except Exception:
             return jsonify({"error": "Server error"}), 500
 
-    # Put statas
+    # Put api/bugs/<bug_id>/status
     def update_status(self, bug_id: str):
         try:
             data = request.get_json()
@@ -72,27 +72,39 @@ class BugController:
         except Exception:
             return jsonify({"error": "Server error"}), 500
 
-    # get bug
+    # GET /api/bugs 
     def get_all(self):
         try:
-            bugs = self.bug_service.list_bugs()
+            search_mode = request.args.get("search_mode")
+            query = request.args.get("query")
+
+            if search_mode and query is not None:
+                bugs = self.bug_service.search_bugs(
+                    mode=search_mode,
+                    query=query
+                )
+            else:
+                bugs = self.bug_service.list_bugs()
+
             return jsonify([bug.to_dict() for bug in bugs]), 200
+
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    # get bug id
+    # Get api/bugs/<bug_id
     def get_one(self, bug_id: str):
         try:
             bug = self.bug_service.get_bug(bug_id)
             return jsonify(bug.to_dict()), 200
-        
+
         except ValueError as e:
             return jsonify({'error': str(e)}), 404
-            
         except Exception:
             return jsonify({'error': 'Server error'}), 500
 
-    # POST assigns
+    # Post api/bugs/<bug_id>/assign
     def assign(self, bug_id: str):
         try:
             assigned_to = request.get_json().get('assigned_to')
@@ -107,7 +119,7 @@ class BugController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    # DELETE 
+    # Delete/api/bugs/<bug_id>
     def delete(self, bug_id: str):
         try:
             self.bug_service.delete_bug(bug_id)
@@ -115,6 +127,5 @@ class BugController:
 
         except ValueError as e:
             return jsonify({"error": str(e)}), 404
-
         except Exception:
             return jsonify({"error": "Server error"}), 500
