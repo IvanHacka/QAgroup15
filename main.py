@@ -88,7 +88,7 @@ def main():
 
             elif choice == "7":
                 bug_id = input("Bug ID: ")
-                confirm = input("Are you sure to delete this bug? (y/n): ").lower
+                confirm = input("Are you sure to delete this bug? (y/n): ").lower == "y"
                 bug_controller.delete(bug_id, confirm)
 
             elif choice == "8":
