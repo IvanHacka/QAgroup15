@@ -51,8 +51,8 @@ def main():
             elif choice == "3":
                 title = input("Title: ")
                 description = input("Description: ")
-                priority = input("Priority (LOW / MEDIUM / HIGH): ")
-                status = input("Status (OPEN / IN_PROGRESS / CLOSED): ")
+                priority = input("Priority (LOW / MEDIUM / HIGH): ").upper()
+                status = input("Status (OPEN / IN_PROGRESS / CLOSED): ").upper()
 
                 bug = bug_controller.create(
                     title=title,
@@ -89,7 +89,12 @@ def main():
             elif choice == "7":
                 bug_id = input("Bug ID: ")
                 confirm = input("Are you sure to delete this bug? (y/n): ").lower == "y"
-                bug_controller.delete(bug_id, confirm)
+                deleted = bug_controller.delete(bug_id, confirm)
+
+                if deleted:
+                    print(f"Bug {bug_id} deleted successfully.")
+                else:
+                    print(f"Bug {bug_id} could not be deleted.")
 
             elif choice == "8":
                 username = input("Username: ")
