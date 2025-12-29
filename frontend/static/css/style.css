@@ -33,7 +33,7 @@ body {
     padding: 20px;
 }
 
-/* Header */
+/* head */
 .header {
     display: flex;
     justify-content: space-between;
@@ -53,7 +53,7 @@ body {
     gap: 10px;
 }
 
-/* Buttons */
+/* Buttonsss */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -82,7 +82,7 @@ body {
     background: #4b5563;
 }
 
-/* Bug List */
+/* bug list */
 .bug-list {
     display: grid;
     gap: 15px;
@@ -225,7 +225,7 @@ form {
     padding: 20px;
 }
 
-/* Loading */
+/* loading */
 .loading {
     text-align: center;
     padding: 40px;
@@ -244,3 +244,82 @@ form {
         grid-template-columns: 1fr;
     }
 }
+
+.bug-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.bug-meta {
+  color: #666;
+  font-size: 14px;
+  display: flex;
+  gap: 16px;
+}
+
+.bug-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.bug-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.bug-card-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #222;
+}
+
+.bug-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Search bar   */
+.search-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-right:10px;
+}
+
+.search-input{
+  width: 260px;
+  max-width: 40vw;
+  padding: 10px 12px;
+  border: 1px solid #dfe3ea;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-input:focus{
+  border-color: #6b6eea;
+}
+
+/* lowkey is optional */
+.btn.btn2{
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #dfe3ea;
+  background: #5d4d4d;
+  cursor: pointer;
+}
+
+.btn.btn2:hover{
+  background: #f3f5f9;
+}
+

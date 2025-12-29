@@ -1,120 +1,85 @@
 import json
 import os
 from typing import List, Optional
-from backend.models.Bug import Bug, BugStatus, BugPriority
+from backend.models.Bug import Bug
 
 
 class BugRepo:
     def __init__(self, bug_file: str = "data/Bugs.json"):
         self.bug_file = bug_file
-        self.data_dir()
+        self._ensure_data_file()
 
-    def data_dir(self):
-        """Create data directory and file if they don't exist"""
+    def _ensure_data_file(self):
         os.makedirs(os.path.dirname(self.bug_file), exist_ok=True)
         if not os.path.exists(self.bug_file):
             with open(self.bug_file, "w") as f:
                 json.dump([], f)
 
     def read_all(self) -> List[dict]:
-        """Read all bugs from file"""
         try:
             with open(self.bug_file, "r") as f:
                 return json.load(f)
-        except FileNotFoundError:
-            return []
-        except json.JSONDecodeError:
-            print(f"{self.bug_file} corruption detected.")
+        except (FileNotFoundError, json.JSONDecodeError):
             return []
 
     def write_all(self, bugs: List[dict]) -> bool:
-        """Write all bugs to file"""
-        temp_file = self.bug_file + ".temp"
         try:
-            with open(temp_file, "w") as f:
+            with open(self.bug_file, "w") as f:
                 json.dump(bugs, f, indent=2)
-
-            os.replace(temp_file, self.bug_file)
             return True
         except Exception as e:
             print(f"Error writing bugs: {e}")
-            if os.path.exists(temp_file):
-                os.remove(temp_file)
             return False
 
-    def get_by_id(self, bug_id: str) -> Optional[Bug]:
-        """Get a single bug by ID"""
-        bugs = self.read_all()
-        
-        for b in bugs:
-            if b["id"] == bug_id:
-                return Bug.from_dict(b)
-        return None
-
-    def list(self) -> List[Bug]:
-        """Get all bugs"""
-                return Bug(
-                    id=b["id"],
-                    title=b["title"],
-                    description=b["description"],
-                    status=BugStatus(b["status"]),
-                    priority=BugPriority(b["priority"]),
-                    tester_id=b["tester_id"],
-                    screenshot=b.get("screenshot", []),
-                    assigned_to=b.get("assigned_to"),
-                    created_at=b.get("created"),
-                    updated_at=b.get("updated")
-                    
-                    )
-        return None
-
-
-    # For filter method
-    def list(self, status: Optional[str]) -> list[Bug]:
-        bugs_data = self.read_all()
-        bugs = (
-                id=b["id"],
-                title=b["title"],
-                description=b["description"],
-                status=BugStatus(b["status"]),
-                priority=BugPriority(b["priority"]),
-                tester_id=b["tester_id"],
-                screenshot=b.get("screenshot", []),
-                assigned_to=b.get("assigned_to"),
-                created_at=b.get("created"),
-                updated_at=b.get("updated")
-        )
-
-        for b in bugs_data:
-            try:
-                bug = Bug.from_dict(b)
-                bugs.append(bug)
-            except Exception as e:
-                print(f"Error parsing bug {b.get('id')}: {e}")
-                continue
-
-        return bugs
-
+    # CRUD
     def create(self, bug: Bug) -> bool:
-        """Create a new bug"""
         bugs = self.read_all()
-
-        # Check if bug ID already exists
         if any(b["id"] == bug.id for b in bugs):
-            print(f"Bug {bug.id} already exists.")
             return False
-
         bugs.append(bug.to_dict())
         return self.write_all(bugs)
 
-    # Might want to display the total number of bugs
-    def count(self) -> int:
-        return len(self.read_all())
+    def get_by_id(self, bug_id: str) -> Optional[Bug]:
+        for b in self.read_all():
+            if b.get("id") == bug_id:
+                return Bug.from_dict(b)
+        return None
+
+    def list_all(self) -> List[Bug]:
+        bugs: List[Bug] = []
+        for b in self.read_all():
+            try:
+                bugs.append(Bug.from_dict(b))
+            except Exception as e:
+                print(f"Skipping invalid bug record {b.get('id')}: {e}")
+        return bugs
+
+    def update(self, bug: Bug) -> bool:
+        bugs = self.read_all()
+        for i, b in enumerate(bugs):
+            if b.get("id") == bug.id:
+                bugs[i] = bug.to_dict()
+                return self.write_all(bugs)
+        return False
 
     def delete(self, bug_id: str) -> bool:
         bugs = self.read_all()
         new_bugs = [b for b in bugs if b.get("id") != bug_id]
         if len(new_bugs) == len(bugs):
             return False
-
         return self.write_all(new_bugs)
+
+    # Search here
+    def search_by_id(self, keyword: str) -> List[Bug]:
+        return [
+            Bug.from_dict(b)
+            for b in self.read_all()
+            if keyword.lower() in b.get("id", "").lower()
+        ]
+
+    def search_by_title(self, keyword: str) -> List[Bug]:
+        return [
+            Bug.from_dict(b)
+            for b in self.read_all()
+            if keyword.lower() in b.get("title", "").lower()
+        ]

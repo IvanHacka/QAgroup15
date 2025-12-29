@@ -1,124 +1,114 @@
-from flask import Flask, jsonify, render_template, request
-from flask_cors import CORS
-
-
 from backend.controllers.BugController import BugController
 from backend.repo.BugRepo import BugRepo
 from backend.services.BugService import BugService
 
 from backend.controllers.UserController import UserController
-from backend.repo.UserRepo import UserRepo
 from backend.services.UserService import UserService
 
-app = Flask(
-            __name__,
-            template_folder='frontend/templates',
-            static_folder='frontend/static'
-            )
-CORS(app)
+
+def print_menu():
+    print("\n=== Bug Tracking System ===")
+    print("1. List all bugs")
+    print("2. Search bugs")
+    print("3. Create bug")
+    print("4. Update bug details")
+    print("5. Update bug status")
+    print("6. Assign bug")
+    print("7. Delete bug")
+    print("8. Login")
+    print("0. Exit")
+
+# I have done
+def main():
+    bug_repo = BugRepo()
+    bug_service = BugService(bug_repo)
+    bug_controller = BugController(bug_service)
+
+    user_service = UserService()
+    user_controller = UserController(user_service)
+
+    print("Bug Tracking System started (CLI mode)")
 
 
+    # print menu after every entry to wait for next input
+    while True:
+        print_menu()
+        choice = input("Choose an option: ").strip()
 
-# Bug tracking setup
-bug_repo = BugRepo()
-bug_service = BugService(bug_repo)
-bug_controller = BugController(bug_service)
+        try:
+            if choice == "1":
+                bugs = bug_controller.get_all()
+                for bug in bugs:
+                    print(bug.to_dict())
 
-# Routes
+            elif choice == "2":
+                mode = input("Search mode (title / id): ").strip()
+                query = input("Search query: ").strip()
+                bugs = bug_controller.get_all(mode, query)
+                for bug in bugs:
+                    print(bug.to_dict())
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+            elif choice == "3":
+                title = input("Title: ")
+                description = input("Description: ")
+                priority = input("Priority (LOW / MEDIUM / HIGH): ")
+                status = input("Status (OPEN / IN_PROGRESS / CLOSED): ")
 
-# Get everything
-@app.route("/api/bugs", methods=["GET"])
-def get_bugs():
-    return bug_controller.get_all()
+                bug = bug_controller.create(
+                    title=title,
+                    description=description,
+                    priority=priority,
+                    status=status
+                )
+                print("Bug created:", bug.to_dict())
 
-# Create bug
-@app.route("/api/bugs", methods=["POST"])
-def create_bug():
-    return bug_controller.create()
+            elif choice == "4":
+                bug_id = input("Bug ID: ")
+                title = input("New title (leave blank to skip): ")
+                description = input("New description (leave blank to skip): ")
 
-# Update bug title / description (#6 user story)
-@app.route("/api/bugs/<bug_id>", methods=["PUT", "PATCH"])
-def update_bug(bug_id):
-    return bug_controller.update(bug_id)
+                title = title if title else None
+                description = description if description else None
 
-# Update bug status (#13 user story)
-@app.route("/api/bugs/<bug_id>/status", methods=["PUT"])
-def update_bug_status(bug_id):
-    return bug_controller.update_status(bug_id)
+                bug = bug_controller.update(bug_id, title, description)
+                print("Bug updated:", bug.to_dict())
 
-# Assign bug to developer
-@app.route("/api/bugs/<bug_id>/assign", methods=["POST"])
-def assign_bug(bug_id):
-    return bug_controller.assign(bug_id)
+            elif choice == "5":
+                bug_id = input("Bug ID: ")
+                status = input("New status: ")
+                bug = bug_controller.update_status(bug_id, status)
+                print("Status updated:", bug.to_dict())
 
-# Register user
-@app.route("/api/users/register", methods=["POST"])
-def register_user():
-    return user_controller.register()
+            elif choice == "6":
+                bug_id = input("Bug ID: ")
+                assigned_to = input("Assign to: ")
+                bug = bug_controller.assign(bug_id, assigned_to)
+                print("Bug assigned:", bug.to_dict())
 
-@app.route("/register", methods=["GET", "POST"])
-def register_page():
-    if request.method == "GET":
-        # show registration form
-        return render_template("register.html")
+            elif choice == "7":
+                bug_id = input("Bug ID: ")
+                bug_controller.delete(bug_id)
 
-    if request.method == "POST":
-        # get form data
-        username = request.form.get("username")
-        password = request.form.get("password")
+            elif choice == "8":
+                username = input("Username: ")
+                password = input("Password: ")
+                success = user_controller.login(username, password)
 
-        ok, message = user_service.register(username, password)
+                if success:
+                    print("Login successful")
+                else:
+                    print("Login failed")
 
-        if ok:
-            return f"Registration successful. You can now <a href='/login'>login</a>."
-        else:
-            return f"Registration failed: {message}"
+            elif choice == "0":
+                print("Exiting system...")
+                break
 
+            else:
+                print("Invalid option. Please try again.")
 
-# Login user
-@app.route("/api/users/login", methods=["POST"])
-def login_user():
-    return user_controller.login()
-
-# Error handling
-
-@app.errorhandler(404)
-def not_found(e):
-    return jsonify({"error": "Not found"}), 404
-
-@app.errorhandler(500)
-def internal_error(e):
-    return jsonify({"error": "Internal server error"}), 500
-
-@app.route("/login", methods=["GET", "POST"])
-def login_page():
-    if request.method == "GET":
-        # show login form
-        return render_template("login.html")
-
-    if request.method == "POST":
-        # read form input
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        ok, message = user_service.login(username, password)
-
-        if ok:
-            return f"Login successful{username}"
-        else:
-            return f"Login failed: {message}"
-
-@app.route("/api/bugs/<bug_id>", methods=["DELETE"])
-def delete_bug(bug_id):
-    return bug_controller.delete(bug_id)
-
+        except Exception as e:
+            print("Error:", e)
 
 
 if __name__ == "__main__":
-    print("Starting server...")
-    print("Bug Tracker API starting...")
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    main()

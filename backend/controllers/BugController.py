@@ -1,119 +1,103 @@
-from flask import request, jsonify
+from typing import Optional, List
 
 from backend.models.Bug import BugPriority, BugStatus, Bug
 from backend.services.BugService import BugService
 
 
+# ****No more flask****
 class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
+
+    # create
+    def create(
+        self,
+        title: str,
+        description: str,
+        priority: str,
+        status: str,
+        tester_id: Optional[str] = None,
+        assigned_to: Optional[str] = None
+    ) -> Bug:
+        if not title or not description:
+            raise ValueError("Title and description are required")
+
+        bug = Bug(
+            title=title,
+            description=description,
+            priority=BugPriority(priority),
+            status=BugStatus(status),
+            tester_id=tester_id,
+            assigned_to=assigned_to
+        )
+        return self.bug_service.create_bug(bug)
+
+    # update
+    def update(
+        self,
+        bug_id: str,
+        title: Optional[str] = None,
+        description: Optional[str] = None
+    ) -> Bug:
+        """
+        Update bug title and/or description.
+        """
+        if title is None and description is None:
+            raise ValueError("Nothing to update")
+
+        return self.bug_service.update_bug_details(
+            bug_id=bug_id,
+            title=title,
+            description=description
+        )
+
+    # update sattus
+    def update_status(self, bug_id: str, new_status: str) -> Bug:
+        if not new_status:
+            raise ValueError("Status cannot be empty")
+
+        return self.bug_service.update_bug_status(bug_id, new_status)
+
+    def assign(self, bug_id: str, assigned_to: str) -> Bug:
+        if not assigned_to:
+            raise ValueError("Assigned user cannot be empty")
+
+        return self.bug_service.assign_bug(bug_id, assigned_to)
+
+    # GET all
+    # Search feature
+    def get_all(
+    self,
+    search_mode: Optional[str] = None,
+    query: Optional[str] = None
+) -> List[Bug]:
         
-    # POST /api/bugs
-    def create(self):
-        try:
-            data = request.get_json()
-            # Create bug with auto-generated ID
-            bug = Bug(
-                title=data['title'],
-                description=data['description'],
-                status=BugStatus(data.get('status')),
-                priority=BugPriority(data.get('priority')),
-                tester_id=data.get('tester_id'),
-                assigned_to=data.get('assigned_to'),
-                screenshot=data.get('screenshot', []),
-            )
+        if not search_mode or not query:
+            return self.bug_service.list_bugs()
+        
+        mode = search_mode.strip().lower()
+        
+        q = query.strip()
 
-            created = self.bug_service.create_bug(bug)
-            return jsonify(created.to_dict()), 201
+        # Searhc by title
+        if mode == "title":
+            return self.bug_service.search_bugs("title", q)
 
-        except ValueError as e:
-            return jsonify({'error': str(e)}), 400
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-        except KeyError as e:
-            return jsonify({'error': f"Missing required fields {e}"}), 400
+        if mode == "id":
+            return self.bug_service.search_bugs("id", q)
 
-    # PUT /api/bugs/<bug_id>
-    def update(self, bug_id: str):
-        try:
-            data = request.get_json() or {}
-            title = data.get("title")
-            description = data.get("description")
+        else:
+                raise ValueError("Invalid search mode")
 
-            if title is None and description is None:
-                return jsonify({"error": "Nothing to update"}), 400
 
-            updated_bug = self.bug_service.update_bug_details(
-                bug_id=bug_id,
-                title=title,
-                description=description
-            )
-            return jsonify(updated_bug.to_dict()), 200
 
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
-        except Exception:
-            return jsonify({"error": "Server error"}), 500
+    # GET by id
+    def get_one(self, bug_id: str) -> Bug:
+        return self.bug_service.get_bug(bug_id)
 
-    # PUT /api/bugs/<bug_id>/status   (#13)
-    def update_status(self, bug_id: str):
-        try:
-            data = request.get_json()
-            new_status = data.get("status")
-
-            updated_bug = self.bug_service.update_bug_status(
-                bug_id, new_status
-            )
-            return jsonify(updated_bug.to_dict()), 200
-
-        except ValueError as e:
-            msg = str(e)
-            if "not found" in msg.lower():
-                return jsonify({"error": msg}), 404
-            return jsonify({"error": msg}), 400
-
-        except Exception:
-            return jsonify({"error": "Server error"}), 500
-
-    # GET /api/bugs
-    def get_all(self):
-        try:
-            bugs = self.bug_service.list_bugs()
-            return jsonify([bug.to_dict() for bug in bugs]), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    def get_one(self, bug_id: str):
-        try:
-            bug = self.bug_service.get_bug(bug_id)
-        try:
-            status = request.args.get('status')
-            priority = request.args.get('priority')
-            assigned_to = request.args.get('assigned_to')
-
-            bugs = self.bug_service.list_bugs(
-                status, priority, assigned_to
-            )
-            return jsonify([bug.to_dict() for bug in bugs]), 200
-
-        except ValueError as e:
-            return jsonify({'error': str(e)}), 400
-
-    # POST /api/bugs/<bug_id>/assign
-    def assign(self, bug_id: str):
-        try:
-            assigned_to = request.get_json().get('assigned_to')
-            if not assigned_to:
-                return jsonify({'error': 'Who are you assigning it to'}), 400
-
-            updated = self.bug_service.assign_bug(bug_id, assigned_to)
-            return jsonify(updated.to_dict()), 200
-
-            if bug:
-                return jsonify(bug.to_dict()), 200
-            else:
-                return jsonify({'error': 'Bug not found'}), 404
-        except ValueError as e:
-            return jsonify({'error': str(e)}), 400
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+    # DELETE
+    # (Confirmation #32)
+    def delete(self, bug_id: str) -> bool:
+        self.bug_service.delete_bug(bug_id)
+        #add confirmation here
+        return True

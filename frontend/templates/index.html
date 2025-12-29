@@ -1,62 +1,174 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Bug Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, user-scalable=no,
+        initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+  >
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Bug Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>Bug Tracker</h1>
-            <div class="header-actions">
-                <button id="newBugButton" class="btn btn1">New Bug</button>
-            </div>
-        </header>
 
-<!--        Bug List-->
-        <div class="bugList" id="bugList">
-            <div class="bug-item">Loading bugs</div>
-        </div>
+<!-- Login model -->
+<div id="loginModal" class="modal show">
+  <div class="modal-content">
+    <h2>Login</h2>
 
-<!--        Create Bug-->
-        <div class="modal" id="bugModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title">New Bug</h1>
-                    <span class="close">&times;</span>
-                </div>
-                <form action="" id="bugForm">
-                    <input type="hidden" id="bugId">
-<!--                    Please put details here-->
+    <form id="loginForm">
+      <label>Username</label>
+      <input type="text" id="loginUsername" required />
 
-<!--                    Buttons-->
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn1" id="saveBtn">Save Bug</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+      <label>Password</label>
+      <input type="password" id="loginPassword" required />
 
-<!--        View Bugs-->
-        <div id="viewModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title">Bugs</h1>
-                    <span class="close">&times;</span>
-                </div>
-                <div class="view-content" id="viewContent">
-<!--                    Will be able to see details here-->
-                </div>
-            </div>
-        </div>
+      <button type="submit">Login</button>
+    </form>
+
+    <div id="loginError" style="color:red; margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- Main APP -->
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <h1>Bug Tracker</h1>
+
+    <div class="header-actions">
+
+      <!-- search bar -->
+      <div class="search-wrap">
+        <input
+          id="searchInput"
+          class="search-input"
+          type="text"
+          placeholder="Search by Bug ID…"
+          autocomplete="off"
+        />
+
+        <button id="searchModeBtn" class="btn btn2" type="button" title="Toggle search mode">
+          ID
+        </button>
+
+        <button id="searchClearBtn" class="btn btn2" type="button" title="Clear search">
+          Clear
+        </button>
+      </div>
+
+      <!--existing -->
+      <button id="newBugButton" class="btn btn1">New Bug</button>
     </div>
+  </header>
 
-    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <!-- bug list -->
+  <div class="bug-list" id="bugList">
+    <div class="bug-item">Loading bugs…</div>
+  </div>
+
+  <!-- create / edit -->
+  <div class="modal" id="bugModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title">New Bug</h1>
+        <span class="close">&times;</span>
+      </div>
+
+      <form id="bugForm">
+
+        <!-- used for edit -->
+        <input type="hidden" id="bugId" name="id">
+        <input type="hidden" id="testerId" name="tester_id" value="">
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="bugTitle">Title</label>
+          <input
+            id="bugTitle"
+            name="title"
+            type="text"
+            placeholder="e.g. Cannot login when password contains spaces"
+            maxlength="200"
+            required
+          />
+        </div>
+
+        <!-- description -->
+        <div class="form-group">
+          <label for="bugDescription">Description / Steps to reproduce</label>
+          <textarea
+            id="bugDescription"
+            name="description"
+            rows="6"
+            placeholder="1) ... 2) ... 3) ..."
+            maxlength="2000"
+            required
+          ></textarea>
+        </div>
+
+        <!-- priority and Status -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bugPriority">Priority</label>
+            <select id="bugPriority" name="priority" required>
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="bugStatus">Status</label>
+            <select id="bugStatus" name="status" required>
+              <option value="OPEN">OPEN</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="CLOSED">CLOSED</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="FAILED">FAILED</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- asssigns to someone -->
+        <div class="form-group">
+          <label for="bugAssignedTo">Assign To</label>
+          <select id="bugAssignedTo" name="assigned_to">
+            <option value="">Unassigned</option>
+            <option value="staff01">staff01</option>
+            <option value="staff02">staff02</option>
+          </select>
+        </div>
+
+        <!-- buttonss -->
+        <div class="modal-footer">
+          <button type="submit" class="btn btn1" id="saveBtn">Save Bug</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- view bug-->
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title">Bug Details</h1>
+        <span class="close">&times;</span>
+      </div>
+      <div class="view-content" id="viewContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- scripts -->
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>
