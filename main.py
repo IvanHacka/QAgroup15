@@ -8,7 +8,6 @@ from backend.services.UserService import UserService
 from backend.models.Bug import BugStatus
 
 
-
 def print_menu():
     print("\n=== Bug Tracking System ===")
     print("1. List all bugs")
@@ -19,12 +18,16 @@ def print_menu():
     print("6. Assign bug")
     print("7. Delete bug")
     print("8. Logout")
-    print("9. Reopen bug")   # 30 reopen
+    print("9. Reopen bug")
+    print("10. Mark bug as duplicate")
     print("0. Exit")
 
 
+def print_bug_with_creator(bug):
+    d = bug.to_dict()
+    print(d)
+    print("------------------------------")
 
-# I have done
 def main():
     bug_repo = BugRepo()
     bug_service = BugService(bug_repo)
@@ -33,15 +36,14 @@ def main():
     user_service = UserService()
     user_controller = UserController(user_service)
 
-
     print("Bug Tracking System started")
 
     current_user = None
 
-    # print menu after every entry to wait for next input
     while True:
         if not current_user:
             current_user = login(user_controller)
+
         print_menu()
         choice = input("Choose an option: ").strip()
 
@@ -53,24 +55,21 @@ def main():
                 print("2. List By Priority(Descending)")
                 print("3. List in alphabetical order(Title A-Z)")
 
-                ListChoice=input("Choose an option: ").strip()
-
+                ListChoice = input("Choose an option: ").strip()
                 bugs = bug_controller.get_all()
+
                 if ListChoice == "0":
                     active_bugs = 0
                     closed_bugs = 0
 
                     for bug in bugs:
-                        status = bug.status  # BugStatus enum
-
-                        if status in (
+                        if bug.status in (
                             BugStatus.OPEN,
                             BugStatus.IN_PROGRESS,
                             BugStatus.REOPEN
                         ):
                             active_bugs += 1
-
-                        elif status in (
+                        elif bug.status in (
                             BugStatus.CLOSED,
                             BugStatus.COMPLETED
                         ):
@@ -81,51 +80,45 @@ def main():
 
                 elif ListChoice == "1":
                     for bug in bugs:
-                        print(bug.to_dict())
+                        print_bug_with_creator(bug)
+
                 elif ListChoice == "2":
-                    # print high priority bugs first
                     print("-High Priority-")
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "HIGH":
-                            print(bug.to_dict())
-                    # then medium
+                            print_bug_with_creator(bug)
+
                     print("-Medium Priority-")
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "MEDIUM":
-                            print(bug.to_dict())
-                    # then low
+                            print_bug_with_creator(bug)
+
                     print("-Low Priority-")
                     for bug in bugs:
                         if bug.to_dict()["priority"] == "LOW":
-                             print(bug.to_dict())
+                            print_bug_with_creator(bug)
 
-                elif ListChoice == "3":#print in alphabetical order
-                    BugsAlphabetical=sorted(bugs, key=lambda bug: bug.title.lower())#orders list of bugs
+                elif ListChoice == "3":
+                    BugsAlphabetical = sorted(bugs, key=lambda bug: bug.title.lower())
                     for bug in BugsAlphabetical:
-                        print(bug.to_dict())
-
+                        print_bug_with_creator(bug)
 
             elif choice == "2":
                 mode = input(
                     "Search mode (id / title / status / priority / person): "
                 ).strip().lower()
 
-                # noramal search
                 if mode != "person":
                     query = input("Search query: ").strip()
                     bugs = bug_controller.get_all(mode, query)
-
                     for bug in bugs:
-                        print(bug.to_dict())
-
-                # ppl search (story 21)
+                        print_bug_with_creator(bug)
                 else:
                     print("\nPerson search:")
                     print("1. assigned_to")
                     print("2. created_by")
 
                     sub_choice = input("Choose search type: ").strip()
-
                     staff = input("Enter staff username: ").strip()
 
                     query = {
@@ -139,26 +132,18 @@ def main():
 
                     if sub_choice == "1":
                         query["assigned_to"] = staff
-
-                        include = input(
-                            "Include unassigned bugs? (y/n): "
-                        ).lower() == "y"
-                        query["include_unassigned"] = include
-
+                        query["include_unassigned"] = (
+                            input("Include unassigned bugs? (y/n): ").lower() == "y"
+                        )
                     elif sub_choice == "2":
                         query["created_by"] = staff
-
-
-                        exclude = input(
-                            "Exclude CLOSED / COMPLETED bugs? (y/n): "
-                        ).lower() == "y"
-                        query["exclude_closed"] = exclude
-
+                        query["exclude_closed"] = (
+                            input("Exclude CLOSED / COMPLETED bugs? (y/n): ").lower() == "y"
+                        )
                     else:
                         print("Invalid person search option")
                         continue
 
-                    # keywords
                     keyword = input(
                         "Optional keyword (press enter to skip): "
                     ).strip()
@@ -171,41 +156,35 @@ def main():
                         print("No bugs found.")
                     else:
                         for bug in bugs:
-                            print(bug.to_dict())
-
+                            print_bug_with_creator(bug)
 
             elif choice == "3":
-                title = input("Title: ")
-                description = input("Description: ")
-                priority = input("Priority (LOW / MEDIUM / HIGH): ").upper()
-                status = input("Status (OPEN / IN_PROGRESS / CLOSED): ").upper()
-
                 bug = bug_controller.create(
-                    title=title,
-                    description=description,
-                    priority=priority,
-                    status=status,
-                    tester_id=current_user.username 
+                    title=input("Title: "),
+                    description=input("Description: "),
+                    priority=input("Priority (LOW / MEDIUM / HIGH): ").upper(),
+                    status=input("Status (OPEN / IN_PROGRESS / CLOSED): ").upper(),
+                    tester_id=current_user.username
                 )
-
-                print("Bug created:", bug.to_dict())
+                print("Bug created:")
+                print_bug_with_creator(bug)
 
             elif choice == "4":
-                bug_id = input("Bug ID: ")
-                title = input("New title (leave blank to skip): ")
-                description = input("New description (leave blank to skip): ")
-
-                title = title if title else None
-                description = description if description else None
-
-                bug = bug_controller.update(bug_id, title, description)
-                print("Bug updated:", bug.to_dict())
+                bug = bug_controller.update(
+                    input("Bug ID: "),
+                    input("New title (leave blank to skip): ") or None,
+                    input("New description (leave blank to skip): ") or None
+                )
+                print("Bug updated:")
+                print_bug_with_creator(bug)
 
             elif choice == "5":
-                bug_id = input("Bug ID: ")
-                status = input("New status: ").strip().upper()
-                bug = bug_controller.update_status(bug_id, status)
-                print("Status updated:", bug.to_dict())
+                bug = bug_controller.update_status(
+                    input("Bug ID: "),
+                    input("New status: ").strip().upper()
+                )
+                print("Status updated:")
+                print_bug_with_creator(bug)
 
             elif choice == "6":
                 bug_id = input("Bug ID: ").strip()
@@ -216,13 +195,13 @@ def main():
                 print("Bug assigned successful")
                 print("Bug assigned to", ", ".join(bug.assigned_to))
                 print("Bug assigned:", bug.to_dict())
-
+                print("Bug assigned:")
+                print_bug_with_creator(bug)
 
             elif choice == "7":
                 bug_id = input("Bug ID: ")
                 confirm = input("Are you sure to delete this bug? (y/n): ").lower() == "y"
                 deleted = bug_controller.delete(bug_id, confirm)
-
                 if deleted:
                     print(f"Bug {bug_id} deleted successfully.")
                 else:
@@ -234,7 +213,6 @@ def main():
                 continue
 
             elif choice == "9":
-                # 1. find out all the closd or completed bugs !
                 bugs = bug_controller.get_all()
                 closed_bugs = [
                     bug for bug in bugs
@@ -245,31 +223,27 @@ def main():
                     print("No closed or completed bugs available to reopen.")
                     continue
 
-                # 2. list out all the reopen bugs
                 print("Which closed / completed bug do you want to reopen?")
                 for i, bug in enumerate(closed_bugs):
                     print(f"{i + 1}. {bug.id} | {bug.title} | {bug.status.value}")
 
-                # 3. user choice la
-                try:
-                    idx = int(input("Choose bug number: ")) - 1
-                    selected_bug = closed_bugs[idx]
-                except (ValueError, IndexError):
-                    print("Invalid selection.")
-                    continue
-
-                # 4. enter reopen reason
+                idx = int(input("Choose bug number: ")) - 1
                 reason = input("Enter reopen reason (min 10 characters): ").strip()
 
-                # 5. call controller to survice
                 reopened_bug = bug_controller.reopen(
-                    bug_id=selected_bug.id,
+                    bug_id=closed_bugs[idx].id,
                     user=current_user.username,
                     reason=reason
                 )
 
                 print("Bug reopened successfully:")
-                print(reopened_bug.to_dict())
+                print_bug_with_creator(reopened_bug)
+
+            elif choice == "10":
+                bug_id = input("Duplicate Bug ID: ").strip()
+                original_id = input("Original Bug ID: ").strip()
+                bug = bug_controller.mark_duplicate(bug_id, original_id)
+                print("Bug marked as duplicate:", bug.to_dict())
 
 
             elif choice == "0":
@@ -282,16 +256,14 @@ def main():
 
 def login(user):
     print("Login Required")
-
     while True:
-        username = input("Username: ").strip()
-        password = input("Password: ").strip()
-
         try:
-            user1 = user.login(username, password)
+            user1 = user.login(
+                input("Username: ").strip(),
+                input("Password: ").strip()
+            )
             print(f"Welcome, {user1.username}!")
             return user1
-
         except Exception as e:
             print(f"Failed to login: {e}")
 

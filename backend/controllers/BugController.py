@@ -107,3 +107,8 @@ class BugController:
     # reopen 30
     def reopen(self, bug_id: str, user: str, reason: str) -> Bug:
         return self.bug_service.reopen_bug(bug_id, user, reason)
+
+    #duplicate
+    def mark_duplicate(self, bug_id: str, original_id: str) -> Bug:
+        return self.bug_service.mark_duplicate(bug_id, original_id)
+

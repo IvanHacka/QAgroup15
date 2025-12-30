@@ -18,6 +18,7 @@ class BugStatus(Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     REOPEN = "REOPEN"
+    DUPLICATE = "DUPLICATE"
 
 
 @dataclass
@@ -34,6 +35,7 @@ class Bug:
 
     tester_id: Optional[str] = None
     assigned_to: List[str] = field(default_factory=list)
+    duplicate_of: Optional[str] = None
 
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     updated_at: Optional[str] = None
@@ -50,6 +52,7 @@ class Bug:
             "reopen_count": self.reopen_count,   #reopen #30
             "created_by": self.tester_id,
             "assigned_to": self.assigned_to,
+            "duplicate_of": self.duplicate_of,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "screenshot": self.screenshot,
@@ -81,8 +84,9 @@ class Bug:
     status=status,
     priority=priority,
     reopen_count=data.get("reopen_count", 0),  # reopen #30 !!
-    tester_id=data.get("tester_id"),
+    tester_id=data.get("created_by") or data.get("tester_id"),
     assigned_to=data.get("assigned_to"),
+    duplicate_of=data.get("duplicate_of"),
     created_at=data.get("created_at", datetime.now().isoformat()),
     updated_at=data.get("updated_at"),
     screenshot=data.get("screenshot", []),
