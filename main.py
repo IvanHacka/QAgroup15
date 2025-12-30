@@ -8,8 +8,9 @@ from backend.services.UserService import UserService
 from backend.models.Bug import BugStatus
 
 
-def print_menu():
+def print_menu(current_user):
     print("\n=== Bug Tracking System ===")
+    print(f"You are currently logged in as {current_user.username}")
     print("1. List all bugs")
     print("2. Search bugs")
     print("3. Create bug")
@@ -44,7 +45,7 @@ def main():
         if not current_user:
             current_user = login(user_controller)
 
-        print_menu()
+        print_menu(current_user)
         choice = input("Choose an option: ").strip()
 
         try:
