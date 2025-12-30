@@ -112,3 +112,6 @@ class BugController:
     def mark_duplicate(self, bug_id: str, original_id: str) -> Bug:
         return self.bug_service.mark_duplicate(bug_id, original_id)
 
+    def get_bug(self, bug_id):
+        return self.bug_service.get_bug(bug_id)
+
