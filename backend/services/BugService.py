@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 from backend.models.Bug import Bug, BugStatus, BugPriority
 from backend.repo.BugRepo import BugRepo
@@ -28,12 +28,8 @@ class BugService:
 
         return bug
 
-    # story29
+    # story 29
     def _assert_bug_editable(self, bug: Bug):
-        """
-        CLOSED / COMPLETED bugs are NOT editable.
-        Must REOPEN first.
-        """
         if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
             raise ValueError(
                 "Bug is CLOSED or COMPLETED. You must REOPEN the bug before editing."
@@ -49,13 +45,24 @@ class BugService:
     def list_bugs(self) -> List[Bug]:
         return self.repo.list_all()
 
-    # search
+
+    # user story 21
     def search_bugs(self, mode: str, query) -> List[Bug]:
+        """
+        Extended search:
+        - id
+        - title
+        - status
+        - priority
+        - person (created_by / assigned_to)
+        """
+
         if not query:
             return self.repo.list_all()
 
         mode = mode.lower()
 
+        # basic story
         if mode == "id":
             return self.repo.search_by_id(str(query))
 
@@ -76,9 +83,68 @@ class BugService:
                 raise ValueError("Invalid bug priority")
             return self.repo.search_by_priority(priority)
 
+        # search by ppl
+        if mode == "person":
+            """
+            query is expected to be a dict:
+            {
+                "created_by": Optional[str],
+                "assigned_to": Optional[str],
+                "include_unassigned": bool,
+                "exclude_closed": bool,
+                "same_person": bool,
+                "keyword": Optional[str]
+            }
+            """
+
+            bugs = self.repo.list_all()
+            results = []
+
+            created_by = query.get("created_by")
+            assigned_to = query.get("assigned_to")
+            include_unassigned = query.get("include_unassigned", False)
+            exclude_closed = query.get("exclude_closed", False)
+            same_person = query.get("same_person", False)
+            keyword = query.get("keyword")
+
+            for bug in bugs:
+                # create geh filter
+                if created_by and bug.tester_id != created_by:
+                    continue
+
+                #assigned_to filter
+                if assigned_to:
+                    if include_unassigned:
+                        if bug.assigned_to not in (assigned_to, None):
+                            continue
+                    else:
+                        if bug.assigned_to != assigned_to:
+                            continue
+
+                # same creator & assignee
+                if same_person:
+                    if not bug.tester_id or bug.tester_id != bug.assigned_to:
+                        continue
+
+                # exclude closed/completed
+                if exclude_closed:
+                    if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
+                        continue
+
+                # keyword search (optional)
+                if keyword:
+                    kw = keyword.lower()
+                    if kw not in bug.title.lower() and kw not in bug.description.lower():
+                        continue
+
+                results.append(bug)
+
+            return results
+
+        # -fallback
         raise ValueError("Invalid search mode")
 
-    # craete
+    # create
     def create_bug(self, bug: Bug) -> Bug:
         self.validate_bug(bug)
         bug.created_at = datetime.now().isoformat()
@@ -88,7 +154,7 @@ class BugService:
 
         raise Exception("Failed to create bug")
 
-    # story 29
+    # update deatails 29
     def update_bug_details(
         self,
         bug_id: str,
@@ -112,7 +178,7 @@ class BugService:
 
         raise Exception("Failed to update bug")
 
-    # stat update story 29
+    # user story 29 and 30
     def update_bug_status(self, bug_id: str, new_status: str) -> Bug:
         bug = self.get_bug(bug_id)
 
@@ -121,7 +187,6 @@ class BugService:
         except ValueError:
             raise ValueError("Invalid bug status")
 
-        # CLOSED / COMPLETED can ONLY go to REOPEN
         if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
             if new_status_enum != BugStatus.REOPEN:
                 raise ValueError(
@@ -136,7 +201,7 @@ class BugService:
 
         raise Exception("Failed to update bug status")
 
-    # ---------------- Assign  story 29
+    # assign 29
     def assign_bug(self, bug_id: str, assigned_to: str) -> Bug:
         bug = self.get_bug(bug_id)
         self._assert_bug_editable(bug)
@@ -152,51 +217,33 @@ class BugService:
 
         raise Exception("Failed to assign bug")
 
-    #delete
+    # delete
     def delete_bug(self, bug_id: str) -> bool:
         if not self.repo.delete(bug_id):
             raise ValueError("Bug not found")
         return True
 
-    # reopen , 30 user story
+    # reopen user story 30
     def reopen_bug(self, bug_id: str, user: str, reason: str) -> Bug:
-        """
-        Reopen a CLOSED or COMPLETED bug.
-        This is the ONLY valid way to restore edit permissions.
-        """
-
-        # 1. Bug must exist
         bug = self.get_bug(bug_id)
 
-        # 2. Status check
         if bug.status not in (BugStatus.CLOSED, BugStatus.COMPLETED):
             raise ValueError("Bug is not closed or completed")
 
-        # 3. Authorization
         allowed_users = {bug.assigned_to, bug.tester_id, "staff01", "staff02"}
         if user not in allowed_users:
             raise ValueError("User is not authorized to reopen this bug")
 
-        # 4. Reason required
-        if not reason:
-            raise ValueError("Reopen reason is required")
-
-        # 5. Reason length
-        if len(reason) < 10:
+        if not reason or len(reason) < 10:
             raise ValueError("Reopen reason must be at least 10 characters")
 
-        # 6. Reopen limit
         if bug.reopen_count >= 3:
             raise ValueError("Reopen limit exceeded")
 
-        # 7. State transition → REOPEN
         bug.status = BugStatus.REOPEN
-
-        # 8. Metadata
         bug.reopen_count += 1
         bug.updated_at = datetime.now().isoformat()
 
-        # 9. Persist
         if self.repo.update(bug):
             return bug
 

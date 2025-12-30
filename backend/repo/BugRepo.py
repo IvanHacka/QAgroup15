@@ -70,6 +70,19 @@ class BugRepo:
             if bug.priority == priority
         ]
 
+    def search_by_assigned_to(self, staff: str):
+        return [
+            bug for bug in self.bugs
+            if bug.assigned_to == staff
+        ]
+
+    def search_by_tester(self, tester: str):
+        return [
+            bug for bug in self.bugs
+            if bug.tester_id == tester
+        ]
+
+
     # create
 
     def create(self, bug: Bug) -> bool:
