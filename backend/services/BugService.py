@@ -248,3 +248,19 @@ class BugService:
             return bug
 
         raise Exception("Failed to reopen bug")
+
+    def mark_duplicate(self, bug_id: str, original_id: str) -> Bug: #user story 33
+        bug = self.get_bug(bug_id)
+        original = self.get_bug(original_id)
+
+        if bug_id == original_id:
+            raise ValueError("A bug cannot be a duplicate of itself")
+
+        bug.status = BugStatus.DUPLICATE
+        bug.duplicate_of = original.id
+        bug.updated_at = datetime.now().isoformat()
+
+        if self.repo.update(bug):
+            return bug
+        raise Exception("Failed to mark duplicate")
+
