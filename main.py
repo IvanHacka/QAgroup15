@@ -19,6 +19,7 @@ def print_menu():
     print("7. Delete bug")
     print("8. Logout")
     print("9. Reopen bug")
+    print("10. Mark bug as duplicate")
     print("0. Exit")
 
 
@@ -233,6 +234,13 @@ def main():
 
                 print("Bug reopened successfully:")
                 print_bug_with_creator(reopened_bug)
+
+            elif choice == "10":
+                bug_id = input("Duplicate Bug ID: ").strip()
+                original_id = input("Original Bug ID: ").strip()
+                bug = bug_controller.mark_duplicate(bug_id, original_id)
+                print("Bug marked as duplicate:", bug.to_dict())
+
 
             elif choice == "0":
                 print("Exiting...")
