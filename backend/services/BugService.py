@@ -202,14 +202,30 @@ class BugService:
         raise Exception("Failed to update bug status")
 
     # assign 29
-    def assign_bug(self, bug_id: str, assigned_to: str) -> Bug:
+    def assign_bug(self, bug_id: str, users: List[str]) -> Bug:
+
+        if not isinstance(users, list):
+            raise TypeError("Assigned users must be a list or usernames")
+
+        if len(users) == 0:
+            raise ValueError("Bug must be assigned to a user")
+
         bug = self.get_bug(bug_id)
         self._assert_bug_editable(bug)
 
-        if not assigned_to:
-            raise ValueError("Bug must be assigned to a user")
+        if bug.assigned_to == None:
+            bug.assigned_to = []
 
-        bug.assigned_to = assigned_to
+        empty_users = []
+        for user in users:
+            if not isinstance(user, str):
+                raise TypeError("Assigned users must be a string")
+            if "," in user:
+                raise ValueError("Each user should be a single username")
+            if not user in empty_users:
+                empty_users.append(user)
+
+        bug.assigned_to = empty_users
         bug.updated_at = datetime.now().isoformat()
 
         if self.repo.update(bug):

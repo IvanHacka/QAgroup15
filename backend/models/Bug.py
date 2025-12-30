@@ -23,17 +23,18 @@ class BugStatus(Enum):
 
 @dataclass
 class Bug:
+
     title: str
     description: str
 
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     status: BugStatus = BugStatus.OPEN
     priority: BugPriority = BugPriority.LOW
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     reopen_count: int = 0  #reopen #30
 
     tester_id: Optional[str] = None
-    assigned_to: Optional[str] = None
+    assigned_to: List[str] = field(default_factory=list)
     duplicate_of: Optional[str] = None
 
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())

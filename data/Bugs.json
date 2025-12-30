@@ -105,10 +105,12 @@
     "priority": "LOW",
     "reopen_count": 0,
     "created_by": null,
-    "assigned_to": null,
+    "assigned_to": [
+      "staff01"
+    ],
     "duplicate_of": null,
     "created_at": "2025-12-30T15:02:37.381433",
-    "updated_at": null,
+    "updated_at": "2025-12-30T16:24:12.075657",
     "screenshot": []
   },
   {

@@ -48,12 +48,12 @@ def main():
         choice = input("Choose an option: ").strip()
 
         try:
-            if choice == "1":
-                print("List Bugs")
-                print("0.List Number of Open & Closed Bugs")
+            if choice == "1":#List Bugs
+                print("=========List Bugs=========")
+                print("0. List Number of Open & Closed Bugs")
                 print("1. List All Bugs(No Order)")
-                print("2.List By Priority(Descending)")
-                print("3.List in alphabetical order(Title A-Z)")
+                print("2. List By Priority(Descending)")
+                print("3. List in alphabetical order(Title A-Z)")
 
                 ListChoice = input("Choose an option: ").strip()
                 bugs = bug_controller.get_all()
@@ -187,10 +187,14 @@ def main():
                 print_bug_with_creator(bug)
 
             elif choice == "6":
-                bug = bug_controller.assign(
-                    input("Bug ID: ").strip(),
-                    input("Assign to: ").strip()
-                )
+                bug_id = input("Bug ID: ").strip()
+                raw_data = input("Assign to: ").strip()
+                assigned_to = [d.strip() for d in raw_data.split(",") if d.strip()]
+                bug = bug_controller.assign(bug_id, assigned_to)
+                print(type(bug.assigned_to), assigned_to)
+                print("Bug assigned successful")
+                print("Bug assigned to", ", ".join(bug.assigned_to))
+                print("Bug assigned:", bug.to_dict())
                 print("Bug assigned:")
                 print_bug_with_creator(bug)
 

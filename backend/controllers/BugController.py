@@ -58,7 +58,7 @@ class BugController:
         return self.bug_service.update_bug_status(bug_id, new_status)
 
     # assign
-    def assign(self, bug_id: str, assigned_to: str) -> Bug:
+    def assign(self, bug_id: str, assigned_to: List[str]) -> Bug:
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
     # get all
