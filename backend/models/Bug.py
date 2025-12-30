@@ -80,7 +80,7 @@ class Bug:
     status=status,
     priority=priority,
     reopen_count=data.get("reopen_count", 0),  # reopen #30 !!
-    tester_id=data.get("tester_id"),
+    tester_id=data.get("created_by") or data.get("tester_id"),
     assigned_to=data.get("assigned_to"),
     created_at=data.get("created_at", datetime.now().isoformat()),
     updated_at=data.get("updated_at"),
