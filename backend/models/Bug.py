@@ -47,7 +47,7 @@ class Bug:
             "status": self.status.value,
             "priority": self.priority.value,
             "reopen_count": self.reopen_count,   #reopen #30
-            "tester_id": self.tester_id,
+            "created_by": self.tester_id,
             "assigned_to": self.assigned_to,
             "created_at": self.created_at,
             "updated_at": self.updated_at,

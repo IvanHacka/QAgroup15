@@ -8,7 +8,7 @@ class BugController:
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
 
-    # cretea
+    # create
     def create(
         self,
         title: str,
@@ -33,7 +33,7 @@ class BugController:
 
         return self.bug_service.create_bug(bug)
 
-    # update details
+    # update 
     def update(
         self,
         bug_id: str,
@@ -50,41 +50,53 @@ class BugController:
             description=description
         )
 
-    # update stat
+    # update status
     def update_status(self, bug_id: str, new_status: str) -> Bug:
         if not new_status:
             raise ValueError("Status cannot be empty")
 
         return self.bug_service.update_bug_status(bug_id, new_status)
 
-    # assign bug
+    # assign
     def assign(self, bug_id: str, assigned_to: str) -> Bug:
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
-    # search
+    # get all
     def get_all(
         self,
         search_mode: Optional[str] = None,
-        query: Optional[str] = None
+        query=None
     ) -> List[Bug]:
 
         # No search → list all
-        if not search_mode or not query:
+        if not search_mode:
             return self.bug_service.list_bugs()
 
         mode = search_mode.strip().lower()
-        q = query.strip()
+
+        # ppl search user story 21
+        if mode == "person":
+            if not isinstance(query, dict):
+                raise ValueError("Person search requires a dictionary query")
+
+            return self.bug_service.search_bugs(mode, query)
+
+        # normal search
+        if not query:
+            return self.bug_service.list_bugs()
+
+        q = str(query).strip()
 
         if mode not in ("id", "title", "status", "priority"):
             raise ValueError("Invalid search mode")
 
         return self.bug_service.search_bugs(mode, q)
 
-    #Get One 
+    # get one
     def get_one(self, bug_id: str) -> Bug:
         return self.bug_service.get_bug(bug_id)
 
-    # Delete (User Story #32) 
+    # delete 32
     def delete(self, bug_id: str, confirm: bool) -> bool:
         if not confirm:
             return False
@@ -92,6 +104,6 @@ class BugController:
         self.bug_service.delete_bug(bug_id)
         return True
 
-    # Reopen Bug (User Story #30)
+    # reopen 30
     def reopen(self, bug_id: str, user: str, reason: str) -> Bug:
         return self.bug_service.reopen_bug(bug_id, user, reason)

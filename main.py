@@ -106,21 +106,72 @@ def main():
 
 
             elif choice == "2":
-                mode = input("Search mode (id / title / status / priority): ").strip().lower()
-                if mode == "status":
-                    print("Available status: OPEN / IN_PROGRESS / CLOSED / COMPLETED / REOPEN")
-                    query = input("Enter status: ").strip().upper()
-                elif mode == "priority":
-                    print("Available priority: LOW / MEDIUM / HIGH")
-                    query = input("Enter priority: ").strip().upper()
-                elif mode in ("id", "title"):
-                    query = input("Enter search keyword: ").strip()
+                mode = input(
+                    "Search mode (id / title / status / priority / person): "
+                ).strip().lower()
+
+                # noramal search
+                if mode != "person":
+                    query = input("Search query: ").strip()
+                    bugs = bug_controller.get_all(mode, query)
+
+                    for bug in bugs:
+                        print(bug.to_dict())
+
+                # ppl search (story 21)
                 else:
-                    print("Invalid search mode.")
-                    continue
-                bugs = bug_controller.get_all(mode, query)
-                for bug in bugs:
-                    print(bug.to_dict())
+                    print("\nPerson search:")
+                    print("1. assigned_to")
+                    print("2. created_by")
+
+                    sub_choice = input("Choose search type: ").strip()
+
+                    staff = input("Enter staff username: ").strip()
+
+                    query = {
+                        "created_by": None,
+                        "assigned_to": None,
+                        "include_unassigned": False,
+                        "exclude_closed": False,
+                        "same_person": False,
+                        "keyword": None
+                    }
+
+                    if sub_choice == "1":
+                        query["assigned_to"] = staff
+
+                        include = input(
+                            "Include unassigned bugs? (y/n): "
+                        ).lower() == "y"
+                        query["include_unassigned"] = include
+
+                    elif sub_choice == "2":
+                        query["created_by"] = staff
+
+
+                        exclude = input(
+                            "Exclude CLOSED / COMPLETED bugs? (y/n): "
+                        ).lower() == "y"
+                        query["exclude_closed"] = exclude
+
+                    else:
+                        print("Invalid person search option")
+                        continue
+
+                    # keywords
+                    keyword = input(
+                        "Optional keyword (press enter to skip): "
+                    ).strip()
+                    if keyword:
+                        query["keyword"] = keyword
+
+                    bugs = bug_controller.get_all("person", query)
+
+                    if not bugs:
+                        print("No bugs found.")
+                    else:
+                        for bug in bugs:
+                            print(bug.to_dict())
 
 
             elif choice == "3":
@@ -133,8 +184,10 @@ def main():
                     title=title,
                     description=description,
                     priority=priority,
-                    status=status
+                    status=status,
+                    tester_id=current_user.username 
                 )
+
                 print("Bug created:", bug.to_dict())
 
             elif choice == "4":
@@ -235,7 +288,6 @@ def login(user):
         try:
             user1 = user.login(username, password)
             print(f"Welcome, {user1.username}!")
-            # Return User for future development
             return user1
 
         except Exception as e:
