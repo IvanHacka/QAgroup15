@@ -57,15 +57,28 @@ def main():
 
                 bugs = bug_controller.get_all()
                 if ListChoice == "0":
-                    OpenBugs=0
-                    ClosedBugs=0
+                    active_bugs = 0
+                    closed_bugs = 0
+
                     for bug in bugs:
-                        if bug.to_dict()["status"] =="OPEN":
-                            OpenBugs+=1
-                        elif bug.to_dict()["status"] =="CLOSED":
-                            ClosedBugs+=1
-                    print("Open Bugs: " + str(OpenBugs))
-                    print("Closed Bugs: " + str(ClosedBugs))
+                        status = bug.status  # BugStatus enum
+
+                        if status in (
+                            BugStatus.OPEN,
+                            BugStatus.IN_PROGRESS,
+                            BugStatus.REOPEN
+                        ):
+                            active_bugs += 1
+
+                        elif status in (
+                            BugStatus.CLOSED,
+                            BugStatus.COMPLETED
+                        ):
+                            closed_bugs += 1
+
+                    print("Active Bugs:", active_bugs)
+                    print("Closed Bugs:", closed_bugs)
+
                 elif ListChoice == "1":
                     for bug in bugs:
                         print(bug.to_dict())
@@ -93,11 +106,22 @@ def main():
 
 
             elif choice == "2":
-                mode = input("Search mode (title / id): ").strip()
-                query = input("Search query: ").strip()
+                mode = input("Search mode (id / title / status / priority): ").strip().lower()
+                if mode == "status":
+                    print("Available status: OPEN / IN_PROGRESS / CLOSED / COMPLETED / REOPEN")
+                    query = input("Enter status: ").strip().upper()
+                elif mode == "priority":
+                    print("Available priority: LOW / MEDIUM / HIGH")
+                    query = input("Enter priority: ").strip().upper()
+                elif mode in ("id", "title"):
+                    query = input("Enter search keyword: ").strip()
+                else:
+                    print("Invalid search mode.")
+                    continue
                 bugs = bug_controller.get_all(mode, query)
                 for bug in bugs:
                     print(bug.to_dict())
+
 
             elif choice == "3":
                 title = input("Title: ")
@@ -212,7 +236,6 @@ def login(user):
             user1 = user.login(username, password)
             print(f"Welcome, {user1.username}!")
             # Return User for future development
-            # i.e. Role
             return user1
 
         except Exception as e:

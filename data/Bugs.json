@@ -63,5 +63,31 @@
     "created_at": "2025-12-29T14:00:46.877327",
     "updated_at": "2025-12-29T17:28:13.978304",
     "screenshot": []
+  },
+  {
+    "id": "87f93302-86c8-4ee0-9563-832e1dfb0a9d",
+    "title": "closed bug",
+    "description": "closed",
+    "status": "OPEN",
+    "priority": "LOW",
+    "reopen_count": 1,
+    "tester_id": null,
+    "assigned_to": null,
+    "created_at": "2025-12-30T13:33:40.095771",
+    "updated_at": "2025-12-30T13:47:51.748154",
+    "screenshot": []
+  },
+  {
+    "id": "77822dc7-5efe-47e4-b2ab-95c0fcda3f8d",
+    "title": "closed bug02",
+    "description": "ss",
+    "status": "REOPEN",
+    "priority": "LOW",
+    "reopen_count": 1,
+    "tester_id": null,
+    "assigned_to": null,
+    "created_at": "2025-12-30T14:19:29.109854",
+    "updated_at": "2025-12-30T14:19:48.858251",
+    "screenshot": []
   }
 ]
