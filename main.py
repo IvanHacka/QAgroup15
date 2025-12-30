@@ -15,7 +15,7 @@ def print_menu():
     print("5. Update bug status")
     print("6. Assign bug")
     print("7. Delete bug")
-    print("8. Login")
+    print("8. Logout")
     print("0. Exit")
 
 # I have done
@@ -28,13 +28,14 @@ def main():
     user_controller = UserController(user_service)
 
 
-    # User login first
-    login(user_controller)
-
     print("Bug Tracking System started")
+
+    current_user = None
 
     # print menu after every entry to wait for next input
     while True:
+        if not current_user:
+            current_user = login(user_controller)
         print_menu()
         choice = input("Choose an option: ").strip()
 
@@ -143,21 +144,13 @@ def main():
                     print(f"Bug {bug_id} could not be deleted.")
 
             elif choice == "8":
-                username = input("Username: ")
-                password = input("Password: ")
-                success = user_controller.login(username, password)
-
-                if success:
-                    print("Login successful")
-                else:
-                    print("Login failed")
+                print("Logging out...")
+                current_user = None
+                continue
 
             elif choice == "0":
-                print("Exiting system...")
+                print("Exiting...")
                 break
-
-            else:
-                print("Invalid option. Please try again.")
 
         except Exception as e:
             print("Error:", e)
