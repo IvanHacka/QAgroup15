@@ -189,9 +189,21 @@ def main():
 
             elif choice == "6":
                 bug_id = input("Bug ID: ").strip()
-                raw_data = input("Assign to: ").strip()
-                assigned_to = [d.strip() for d in raw_data.split(",") if d.strip()]
-                bug = bug_controller.assign(bug_id, assigned_to)
+                print("1.Change who is assigned(replace currently assigned)")
+                print("2.Assign another stuff member(Add to currently assigned)")
+                AssignChoice=input("Choose an option: ")
+
+                if AssignChoice == "1":
+                    raw_data = input("Assign to: ").strip()
+                    assigned_to = [d.strip() for d in raw_data.split(",") if d.strip()]
+                    bug = bug_controller.assign(bug_id, assigned_to)
+                elif AssignChoice == "2":
+                    NewAssignment=input("Please enter the username of the staff you would like to add: ")
+                    CurrentBug=bug_controller.get_bug(bug_id)
+                    CurrentlyAssigned=CurrentBug.to_dict()["assigned_to"]
+                    assigned_to=CurrentlyAssigned+[NewAssignment]
+                    bug=bug_controller.assign(bug_id, assigned_to)
+
                 print(type(bug.assigned_to), assigned_to)
                 print("Bug assigned successful")
                 print("Bug assigned to", ", ".join(bug.assigned_to))

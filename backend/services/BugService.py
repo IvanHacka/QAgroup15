@@ -225,6 +225,7 @@ class BugService:
             if not user in empty_users:
                 empty_users.append(user)
 
+
         bug.assigned_to = empty_users
         bug.updated_at = datetime.now().isoformat()
 
