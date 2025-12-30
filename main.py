@@ -167,14 +167,18 @@ def login(user):
     print("Login Required")
 
     while True:
-        username = input("Username: ")
-        password = input("Password: ")
+        username = input("Username: ").strip()
+        password = input("Password: ").strip()
 
-        if user.login(username, password):
-            print("Login successful\n")
-            return True
-        else:
-            print("Login failed\n")
+        try:
+            user1 = user.login(username, password)
+            print(f"Welcome, {user1.username}!")
+            # Return User for future development
+            # i.e. Role
+            return user1
+
+        except Exception as e:
+            print(f"Failed to login: {e}")
 
 
 if __name__ == "__main__":
