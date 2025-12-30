@@ -17,6 +17,7 @@ class BugStatus(Enum):
     CLOSED = "CLOSED"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
+    REOPEN = "REOPEN"
 
 
 @dataclass
