@@ -3,13 +3,12 @@ from backend.models.Bug import Bug, BugPriority, BugStatus
 from backend.services.BugService import BugService
 
 
-# **** No Flask, Pure CLI Controller ****
 class BugController:
 
     def __init__(self, bug_service: BugService):
         self.bug_service = bug_service
 
-    # ---------------- Create ----------------
+    # cretea
     def create(
         self,
         title: str,
@@ -34,7 +33,7 @@ class BugController:
 
         return self.bug_service.create_bug(bug)
 
-    # ---------------- Update Details ----------------
+    # update details
     def update(
         self,
         bug_id: str,
@@ -51,18 +50,18 @@ class BugController:
             description=description
         )
 
-    # ---------------- Update Status ----------------
+    # update stat
     def update_status(self, bug_id: str, new_status: str) -> Bug:
         if not new_status:
             raise ValueError("Status cannot be empty")
 
         return self.bug_service.update_bug_status(bug_id, new_status)
 
-    # ---------------- Assign Bug ----------------
+    # assign bug
     def assign(self, bug_id: str, assigned_to: str) -> Bug:
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
-    # ---------------- Get All / Search ----------------
+    # search
     def get_all(
         self,
         search_mode: Optional[str] = None,
@@ -81,11 +80,11 @@ class BugController:
 
         return self.bug_service.search_bugs(mode, q)
 
-    # ---------------- Get One ----------------
+    #Get One 
     def get_one(self, bug_id: str) -> Bug:
         return self.bug_service.get_bug(bug_id)
 
-    # ---------------- Delete (User Story #32) ----------------
+    # Delete (User Story #32) 
     def delete(self, bug_id: str, confirm: bool) -> bool:
         if not confirm:
             return False
@@ -93,6 +92,6 @@ class BugController:
         self.bug_service.delete_bug(bug_id)
         return True
 
-    # ---------------- Reopen Bug (User Story #30) ----------------
+    # Reopen Bug (User Story #30)
     def reopen(self, bug_id: str, user: str, reason: str) -> Bug:
         return self.bug_service.reopen_bug(bug_id, user, reason)

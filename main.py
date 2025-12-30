@@ -236,7 +236,6 @@ def login(user):
             user1 = user.login(username, password)
             print(f"Welcome, {user1.username}!")
             # Return User for future development
-            # i.e. Role
             return user1
 
         except Exception as e:

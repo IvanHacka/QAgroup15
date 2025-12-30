@@ -8,7 +8,7 @@ class BugService:
     def __init__(self, repo: BugRepo):
         self.repo = repo
 
-    # ---------------- Validation ----------------
+    # validation
     def validate_bug(self, bug: Bug) -> Bug:
         if not bug.title:
             raise ValueError("Bug title is required")
@@ -28,7 +28,7 @@ class BugService:
 
         return bug
 
-    # ---------------- User Story #29 ----------------
+    # story29
     def _assert_bug_editable(self, bug: Bug):
         """
         CLOSED / COMPLETED bugs are NOT editable.
@@ -39,7 +39,7 @@ class BugService:
                 "Bug is CLOSED or COMPLETED. You must REOPEN the bug before editing."
             )
 
-    # ---------------- Read ----------------
+    # read
     def get_bug(self, bug_id: str) -> Bug:
         bug = self.repo.get_by_id(bug_id)
         if not bug:
@@ -49,7 +49,7 @@ class BugService:
     def list_bugs(self) -> List[Bug]:
         return self.repo.list_all()
 
-    # ---------------- Search ----------------
+    # search
     def search_bugs(self, mode: str, query) -> List[Bug]:
         if not query:
             return self.repo.list_all()
@@ -78,7 +78,7 @@ class BugService:
 
         raise ValueError("Invalid search mode")
 
-    # ---------------- Create ----------------
+    # craete
     def create_bug(self, bug: Bug) -> Bug:
         self.validate_bug(bug)
         bug.created_at = datetime.now().isoformat()
@@ -88,7 +88,7 @@ class BugService:
 
         raise Exception("Failed to create bug")
 
-    # ---------------- Update Details (US #29) ----------------
+    # story 29
     def update_bug_details(
         self,
         bug_id: str,
@@ -112,7 +112,7 @@ class BugService:
 
         raise Exception("Failed to update bug")
 
-    # ---------------- Update Status (US #29) ----------------
+    # stat update story 29
     def update_bug_status(self, bug_id: str, new_status: str) -> Bug:
         bug = self.get_bug(bug_id)
 
@@ -136,7 +136,7 @@ class BugService:
 
         raise Exception("Failed to update bug status")
 
-    # ---------------- Assign (US #29) ----------------
+    # ---------------- Assign  story 29
     def assign_bug(self, bug_id: str, assigned_to: str) -> Bug:
         bug = self.get_bug(bug_id)
         self._assert_bug_editable(bug)
@@ -152,13 +152,13 @@ class BugService:
 
         raise Exception("Failed to assign bug")
 
-    # ---------------- Delete ----------------
+    #delete
     def delete_bug(self, bug_id: str) -> bool:
         if not self.repo.delete(bug_id):
             raise ValueError("Bug not found")
         return True
 
-    # ---------------- Reopen Bug (US #30) ----------------
+    # reopen , 30 user story
     def reopen_bug(self, bug_id: str, user: str, reason: str) -> Bug:
         """
         Reopen a CLOSED or COMPLETED bug.
