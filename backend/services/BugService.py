@@ -143,3 +143,58 @@ class BugService:
             raise ValueError("Bug not found")
         return True
     
+    #reopen #30 !ha
+    def reopen_bug(self, bug_id: str, user: str, reason: str) -> Bug:
+
+    #Reopen a closed or completed bug under strict conditions.
+    #This method is intentionally designed with high cyclomatic complexity
+    #for white-box testing and symbolic execution.
+    #dont del my comments pls.
+
+
+    # 1. Bug must exist
+        bug = self.get_bug(bug_id)
+
+        # 2. Bug status must be CLOSED or COMPLETED
+        if bug.status not in (BugStatus.CLOSED, BugStatus.COMPLETED):
+            raise ValueError("Bug is not closed or completed")
+
+        # 3. User authorization
+        allowed_users = {"staff01", "staff02", bug.assigned_to}
+
+        if user not in allowed_users:
+         raise ValueError("User is not authorized")
+
+
+        # 4. Reason must exist
+        if not reason:
+            raise ValueError("Reopen reason is required")
+
+        # 5. Reason length validation
+        if len(reason) < 10:
+            raise ValueError("Reopen reason must be at least 10 characters")
+
+        # 6. Reopen count limit
+        if bug.reopen_count >= 3:
+            raise ValueError("Reopen limit exceeded")
+
+        # 7. State transition logic
+        if bug.status == BugStatus.COMPLETED:
+            bug.status = BugStatus.IN_PROGRESS
+        elif bug.status == BugStatus.CLOSED:
+            bug.status = BugStatus.OPEN
+        else:
+            # Defensive programming (should never happen)
+            raise ValueError("Invalid state transition")
+
+        # 8. Update metadata
+        bug.reopen_count += 1
+        bug.updated_at = datetime.now().isoformat()
+
+        # 9. Persist changes
+        if self.repo.update(bug):
+            return bug
+
+        # 10. Persistence failure
+        raise Exception("Failed to reopen bug")
+    

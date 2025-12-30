@@ -5,6 +5,9 @@ from backend.services.BugService import BugService
 from backend.controllers.UserController import UserController
 from backend.services.UserService import UserService
 
+from backend.models.Bug import BugStatus
+
+
 
 def print_menu():
     print("\n=== Bug Tracking System ===")
@@ -16,7 +19,10 @@ def print_menu():
     print("6. Assign bug")
     print("7. Delete bug")
     print("8. Logout")
+    print("9. Reopen bug")   # 30 reopen
     print("0. Exit")
+
+
 
 # I have done
 def main():
@@ -135,7 +141,7 @@ def main():
 
             elif choice == "7":
                 bug_id = input("Bug ID: ")
-                confirm = input("Are you sure to delete this bug? (y/n): ").lower == "y"
+                confirm = input("Are you sure to delete this bug? (y/n): ").lower() == "y"
                 deleted = bug_controller.delete(bug_id, confirm)
 
                 if deleted:
@@ -147,6 +153,45 @@ def main():
                 print("Logging out...")
                 current_user = None
                 continue
+
+            elif choice == "9":
+                # 1. find out all the closd or completed bugs !
+                bugs = bug_controller.get_all()
+                closed_bugs = [
+                    bug for bug in bugs
+                    if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED)
+                ]
+
+                if not closed_bugs:
+                    print("No closed or completed bugs available to reopen.")
+                    continue
+
+                # 2. list out all the reopen bugs
+                print("Which closed / completed bug do you want to reopen?")
+                for i, bug in enumerate(closed_bugs):
+                    print(f"{i + 1}. {bug.id} | {bug.title} | {bug.status.value}")
+
+                # 3. user choice la
+                try:
+                    idx = int(input("Choose bug number: ")) - 1
+                    selected_bug = closed_bugs[idx]
+                except (ValueError, IndexError):
+                    print("Invalid selection.")
+                    continue
+
+                # 4. enter reopen reason
+                reason = input("Enter reopen reason (min 10 characters): ").strip()
+
+                # 5. call controller to survice
+                reopened_bug = bug_controller.reopen(
+                    bug_id=selected_bug.id,
+                    user=current_user.username,
+                    reason=reason
+                )
+
+                print("Bug reopened successfully:")
+                print(reopened_bug.to_dict())
+
 
             elif choice == "0":
                 print("Exiting...")

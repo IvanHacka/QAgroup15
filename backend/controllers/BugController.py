@@ -95,3 +95,9 @@ class BugController:
         if not confirm:
             return False
         return True
+    
+#reopen
+#30.
+    def reopen(self, bug_id: str, user: str, reason: str):
+        return self.bug_service.reopen_bug(bug_id, user, reason)
+
