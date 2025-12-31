@@ -170,7 +170,7 @@
     "id": "018e5e49-23de-40df-bee7-c978cb84bb59",
     "title": "TEst3",
     "description": "test",
-    "status": "DUPLICATE",
+    "status": "CLOSED",
     "priority": "LOW",
     "reopen_count": 0,
     "created_by": "staff01",
@@ -180,7 +180,7 @@
     ],
     "duplicate_of": "4ff6f19b-f67d-43ce-850b-b3698763183e",
     "created_at": "2025-12-30T12:58:51.522017",
-    "updated_at": "2025-12-31T17:19:32.883304",
+    "updated_at": "2025-12-31T18:40:25.371602",
     "comments": [
       {
         "user": "staff01",
@@ -202,6 +202,36 @@
     "duplicate_of": null,
     "created_at": "2025-12-31T17:39:27.390518",
     "updated_at": null,
+    "comments": [],
+    "screenshot": []
+  },
+  {
+    "id": "2a75ef06-9e85-454e-9285-3d892d79b801",
+    "title": "bug open",
+    "description": "is bug open auto",
+    "status": "IN_PROGRESS",
+    "priority": "LOW",
+    "reopen_count": 0,
+    "created_by": "staff01",
+    "assigned_to": null,
+    "duplicate_of": null,
+    "created_at": "2025-12-31T18:50:43.731214",
+    "updated_at": null,
+    "comments": [],
+    "screenshot": []
+  },
+  {
+    "id": "a83ee66c-12d7-4a3b-9ca0-4cbaa18cf3ab",
+    "title": "seeing if it open",
+    "description": "seeing if it says open automatically",
+    "status": "IN_PROGRESS",
+    "priority": "LOW",
+    "reopen_count": 0,
+    "created_by": "staff01",
+    "assigned_to": null,
+    "duplicate_of": null,
+    "created_at": "2025-12-31T20:52:32.425762",
+    "updated_at": "2025-12-31T20:53:21.866573",
     "comments": [],
     "screenshot": []
   }
