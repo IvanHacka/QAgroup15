@@ -21,6 +21,7 @@ def print_menu(current_user):
     print("8. Logout")
     print("9. Reopen bug")
     print("10. Mark bug as duplicate")
+    print("11. Comment bug")
     print("0. Exit")
 
 
@@ -257,6 +258,20 @@ def main():
                 original_id = input("Original Bug ID: ").strip()
                 bug = bug_controller.mark_duplicate(bug_id, original_id)
                 print("Bug marked as duplicate:", bug.to_dict())
+
+
+            elif choice == "11":
+                bug_id = input("Bug ID: ").strip()
+                text = input("Comment: ").strip()
+
+                bug = bug_controller.add_comment(
+                    bug_id=bug_id,
+                    user=current_user.username,
+                    text=text
+                )
+
+                print("Comment added successfully.")
+                print(bug.to_dict())
 
 
             elif choice == "0":

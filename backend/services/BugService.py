@@ -281,3 +281,24 @@ class BugService:
             return bug
         raise Exception("Failed to mark duplicate")
 
+    def add_comment(self, bug_id: str, user: str, text: str) -> Bug:
+        if not text.strip():
+            raise ValueError("Comment cannot be empty")
+
+        bug = self.get_bug(bug_id)
+
+        comment = {
+            "user": user,
+            "text": text,
+            "created_at": datetime.now().isoformat()
+        }
+
+        bug.comments.append(comment)
+        bug.updated_at = datetime.now().isoformat()
+
+        if self.repo.update(bug):
+            return bug
+
+        raise Exception("Failed to add comment")
+
+
