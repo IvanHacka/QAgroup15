@@ -6,7 +6,7 @@ from backend.controllers.UserController import UserController
 from backend.services.UserService import UserService
 
 from backend.models.Bug import BugStatus
-
+from datetime import datetime
 
 def print_menu(current_user):
     print("\n=== Bug Tracking System ===")
@@ -27,8 +27,34 @@ def print_menu(current_user):
 
 def print_bug_with_creator(bug):
     d = bug.to_dict()
+
+
+    if d.get("status") in ("OPEN", "IN_PROGRESS", "REOPEN"):
+        d["time_open"] = time_open_str(d["created_at"])
+
+
+        created = datetime.fromisoformat(d["created_at"])
+        if (datetime.now() - created).days >= 7:
+            d["stalled"] = True
     print(d)
     print("------------------------------")
+
+def time_open_str(created_at: str) -> str:
+    created = datetime.fromisoformat(created_at)
+    now = datetime.now()
+    delta = now - created
+
+    days = delta.days
+    seconds = delta.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+
+    if days > 0:
+        return f"{days}d {hours}h"
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    return f"{minutes}m"
+
 
 def main():
     bug_repo = BugRepo()
