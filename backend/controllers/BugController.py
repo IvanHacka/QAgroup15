@@ -115,3 +115,7 @@ class BugController:
     def get_bug(self, bug_id):
         return self.bug_service.get_bug(bug_id)
 
+    def add_comment(self, bug_id: str, user: str, text: str) -> Bug:
+        return self.bug_service.add_comment(bug_id, user, text)
+
+

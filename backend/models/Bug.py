@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Dict, Optional, List
 import uuid
 
 
@@ -40,6 +40,7 @@ class Bug:
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     updated_at: Optional[str] = None
 
+    comments: List[Dict] = field(default_factory=list)
     screenshot: List[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -55,6 +56,7 @@ class Bug:
             "duplicate_of": self.duplicate_of,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "comments": self.comments,
             "screenshot": self.screenshot,
         }
 
@@ -89,6 +91,7 @@ class Bug:
     duplicate_of=data.get("duplicate_of"),
     created_at=data.get("created_at", datetime.now().isoformat()),
     updated_at=data.get("updated_at"),
+    comments=data.get("comments", []),
     screenshot=data.get("screenshot", []),
 )
 
