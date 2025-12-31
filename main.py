@@ -191,7 +191,7 @@ def main():
                     title=input("Title: "),
                     description=input("Description: "),
                     priority=input("Priority (LOW / MEDIUM / HIGH): ").upper(),
-                    status=input("Status (OPEN / IN_PROGRESS / CLOSED): ").upper(),
+                    status="OPEN",
                     tester_id=current_user.username
                 )
                 print("Bug created:")
