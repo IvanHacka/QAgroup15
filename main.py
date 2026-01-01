@@ -137,10 +137,23 @@ def main():
                 ).strip().lower()
 
                 if mode != "person":
-                    query = input("Search query: ").strip()
+
+                    if mode == "priority":
+                        query = input("Search query (low / medium / high): ").strip()
+                    elif mode == "status":
+                        query = input("Search query (open / in_progress / closed / completed / reopen): ").strip()
+                    elif mode == "id":
+                        query = input("Search bug ID: ").strip()
+                    elif mode == "title":
+                        query = input("Search keyword: ").strip()
+                    else:
+                        query = input("Search query: ").strip()
+
                     bugs = bug_controller.get_all(mode, query)
+
                     for bug in bugs:
                         print_bug_with_creator(bug)
+
                 else:
                     print("\nPerson search:")
                     print("1. assigned_to")
