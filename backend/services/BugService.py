@@ -56,11 +56,10 @@ class BugService:
         - priority
         - person (created_by / assigned_to)
         """
-
-        if not query:
-            return self.repo.list_all()
-
         mode = mode.lower()
+
+        if query is None or (isinstance(query, str) and query.strip() == ""):
+            raise ValueError("Search query cannot be empty")
 
         # basic story
         if mode == "id":
@@ -95,9 +94,6 @@ class BugService:
             return results
 
 
-        # fallback for non-title searches only
-        if not query:
-            return self.repo.list_all()
 
 
         if mode == "status":
@@ -108,11 +104,8 @@ class BugService:
             return self.repo.search_by_status(status)
 
         if mode == "priority":
-            try:
-                priority = query if isinstance(query, BugPriority) else BugPriority[str(query).upper()]
-            except KeyError:
-                raise ValueError("Invalid bug priority")
-            return self.repo.search_by_priority(priority)
+            return self._search_by_priority_complex(query)
+
 
         # search by ppl
         if mode == "person":
@@ -331,5 +324,63 @@ class BugService:
             return bug
 
         raise Exception("Failed to add comment")
+    
+    def _search_by_priority_complex(self, query) -> List[Bug]:
+        """
+        User Story #20:
+        Filter bug reports by priority with sufficient cyclomatic complexity.
+        """
 
+        # 1 query must exist
+        if query is None:
+            raise ValueError("Priority query cannot be None")
+
+        # 2 empty string check
+        if isinstance(query, str) and query.strip() == "":
+            raise ValueError("Priority query cannot be empty")
+
+        # 3️ already enum
+        if isinstance(query, BugPriority):
+            priority = query
+
+        # 4️ string input
+        elif isinstance(query, str):
+            normalized = query.strip().upper()
+
+            # 6️ numeric string
+            if normalized.isdigit():
+                raise ValueError("Priority cannot be numeric")
+            
+            # 5️ too short
+            if len(normalized) < 3:
+                raise ValueError("Priority string too short and not valid")
+
+            # 7️ invalid enum name
+            if normalized not in BugPriority.__members__:
+                raise ValueError("Invalid bug priority")
+
+            priority = BugPriority[normalized]
+
+        # 8️ unsupported type
+        else:
+            raise TypeError("Unsupported priority query type")
+
+        # 9️ repository failure guard
+        bugs = self.repo.search_by_priority(priority)
+        if bugs is None:
+            raise RuntimeError("Repository returned None")
+
+        # 10 empty result path
+        if not bugs:
+            return []
+
+        # 1️1 defensive filtering
+        filtered = []
+        for bug in bugs:
+            if bug.priority == priority:
+                filtered.append(bug)
+            else:
+                continue
+
+        return filtered
 

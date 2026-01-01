@@ -81,9 +81,6 @@ class BugController:
 
             return self.bug_service.search_bugs(mode, query)
 
-        # normal search
-        if not query:
-            return self.bug_service.list_bugs()
 
         q = str(query).strip()
 
