@@ -22,6 +22,7 @@ def print_menu(current_user):
     print("9. Reopen bug")
     print("10. Mark bug as duplicate")
     print("11. Comment bug")
+    print(f"12. View all bugs assigned to {current_user.username}")
     print("0. Exit")
 
 
@@ -355,6 +356,23 @@ def main():
                 print("Comment added successfully.")
                 print(bug.to_dict())
 
+            elif choice == "12":
+                bugs=bug_controller.get_all()
+                MyBugs=[]
+                for bug in bugs:
+                    assigned=bug.to_dict().get("assigned_to")
+                    if assigned is None:
+                        assigned=[]
+                    if current_user.username in assigned:
+                        MyBugs.append(bug)
+                if not MyBugs:
+                    print("You have no assigned bugs")
+                else:
+                    print("Bugs assigned:")
+                    for bug in MyBugs:
+                        print(bug.to_dict())
+
+
 
             elif choice == "0":
                 print("Exiting...")
@@ -362,6 +380,7 @@ def main():
 
         except Exception as e:
             print("Error:", e)
+
 
 
 def login(user):
