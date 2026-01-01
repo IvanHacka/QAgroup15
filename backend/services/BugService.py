@@ -67,7 +67,38 @@ class BugService:
             return self.repo.search_by_id(str(query))
 
         if mode == "title":
-            return self.repo.search_by_title(str(query))
+            if not isinstance(query, str):
+                raise ValueError("Keyword must be a string")
+
+            keyword = query.strip()
+
+            if len(keyword) < 2:
+                raise ValueError("Keyword too short")
+
+            if len(keyword) > 60:
+                raise ValueError("Keyword too long")
+
+            if keyword.isdigit():
+                raise ValueError("Keyword cannot be numeric")
+
+            if any(c in keyword for c in "*$%"):
+                raise ValueError("Invalid characters in keyword")
+
+            results = self.repo.search_by_title(keyword)
+
+            if not results:
+                raise ValueError("No matching bugs found")
+
+            if len(results) > 20:
+                return results[:20]
+
+            return results
+
+
+        # fallback for non-title searches only
+        if not query:
+            return self.repo.list_all()
+
 
         if mode == "status":
             try:
