@@ -93,15 +93,84 @@ class BugService:
 
             return results
 
-
-
-
         if mode == "status":
+
+            if isinstance(query, str):
+                query = {
+                    "status": query
+                }
+
+            bugs = self.repo.list_all()
+            results = []
+
+            ##
+            status_str = query.get("status")
+            include_reopen = query.get("include_reopen", False)
+            exclude_completed = query.get("exclude_completed", False)
+            priority = query.get("priority")
+            assigned_to = query.get("assigned_to")
+            created_by = query.get("created_by")
+            keyword = query.get("keyword")
+            only_active = query.get("only_active", False)
+
+            # validate hee
+            if not status_str:
+                raise ValueError("Status is required")
+
             try:
-                status = query if isinstance(query, BugStatus) else BugStatus[str(query).upper()]
+                base_status = BugStatus[status_str.upper()]
             except KeyError:
-                raise ValueError("Invalid bug status")
-            return self.repo.search_by_status(status)
+                raise ValueError("Invalid status value")
+
+            for bug in bugs:
+
+                # 1. base statuss fillter
+                if bug.status != base_status:
+                    if include_reopen:
+                        if not (base_status == BugStatus.OPEN and bug.status == BugStatus.REOPEN):
+                            continue
+                    else:
+                        continue
+
+                # 2. exclude compeleted bugs
+                if exclude_completed:
+                    if bug.status == BugStatus.COMPLETED:
+                        continue
+
+                # 3. only active bugs (OPEN / REOPEN)
+                if only_active:
+                    if bug.status not in (BugStatus.OPEN, BugStatus.REOPEN):
+                        continue
+
+                # 4. priority filter
+                if priority:
+                    try:
+                        if bug.priority != BugPriority[priority.upper()]:
+                            continue
+                    except KeyError:
+                        raise ValueError("Invalid priority value")
+
+                # 5. assigned_to filter
+                if assigned_to and bug.assigned_to != assigned_to:
+                    continue
+
+                # 6. created_by filter
+                if created_by and bug.tester_id != created_by:
+                    continue
+
+                # 7. keyword fillter
+                if keyword:
+                    kw = keyword.lower()
+                    if kw not in bug.title.lower() and kw not in bug.description.lower():
+                        continue
+
+                results.append(bug)
+
+            # 8. empty result handling
+            if not results:
+                raise ValueError("No bugs found with given status policies")
+
+            return results
 
         if mode == "priority":
             return self._search_by_priority_complex(query)
