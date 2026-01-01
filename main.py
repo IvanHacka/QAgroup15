@@ -141,7 +141,50 @@ def main():
                     if mode == "priority":
                         query = input("Search query (low / medium / high): ").strip()
                     elif mode == "status":
-                        query = input("Search query (open / in_progress / closed / completed / reopen): ").strip()
+                        status = input(
+                            "Search status (open / in_progress / closed / completed / reopen): "
+                        ).strip()
+
+                        include_reopen = (
+                            input("Include REOPEN bugs when status is OPEN? (y/n): ").lower() == "y"
+                        )
+
+                        exclude_completed = (
+                            input("Exclude COMPLETED bugs? (y/n): ").lower() == "y"
+                        )
+
+                        only_active = (
+                            input("Only show active bugs (OPEN / REOPEN)? (y/n): ").lower() == "y"
+                        )
+
+                        priority = input(
+                            "Filter by priority (low / medium / high, press enter to skip): "
+                        ).strip()
+                        if not priority:
+                            priority = None
+
+                        assigned_to = input(
+                            "Filter by assigned user (press enter to skip): "
+                        ).strip()
+                        if not assigned_to:
+                            assigned_to = None
+
+                        keyword = input(
+                            "Optional keyword (press enter to skip): "
+                        ).strip()
+                        if not keyword:
+                            keyword = None
+
+                        query = {
+                            "status": status,
+                            "include_reopen": include_reopen,
+                            "exclude_completed": exclude_completed,
+                            "only_active": only_active,
+                            "priority": priority,
+                            "assigned_to": assigned_to,
+                            "keyword": keyword
+                        }
+
                     elif mode == "id":
                         query = input("Search bug ID: ").strip()
                     elif mode == "title":
