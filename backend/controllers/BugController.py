@@ -16,11 +16,14 @@ class BugController:
         priority: str,
         status: str,
         tester_id: Optional[str] = None,
-        assigned_to: Optional[str] = None
+        assigned_to: Optional[List[str]] = None
     ) -> Bug:
 
         if not title or not description:
             raise ValueError("Title and description are required")
+
+        if assigned_to is None:
+            assigned_to = [tester_id] if tester_id else []
 
         bug = Bug(
             title=title,
