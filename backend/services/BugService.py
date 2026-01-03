@@ -340,9 +340,14 @@ class BugService:
         if bug.status not in (BugStatus.CLOSED, BugStatus.COMPLETED):
             raise ValueError("Bug is not closed or completed")
 
-        allowed_users = {bug.assigned_to, bug.tester_id, "staff01", "staff02"}
-        if user not in allowed_users:
+        # authorization check 
+        is_staff = user in ("staff01", "staff02")
+        is_creator = bug.tester_id == user
+        is_assigned = user in bug.assigned_to if isinstance(bug.assigned_to, list) else False
+
+        if not (is_staff or is_creator or is_assigned):
             raise ValueError("User is not authorized to reopen this bug")
+
 
         if not reason or len(reason) < 10:
             raise ValueError("Reopen reason must be at least 10 characters")
