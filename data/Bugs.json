@@ -170,9 +170,9 @@
     "id": "018e5e49-23de-40df-bee7-c978cb84bb59",
     "title": "TEst3",
     "description": "test",
-    "status": "CLOSED",
+    "status": "REOPEN",
     "priority": "LOW",
-    "reopen_count": 0,
+    "reopen_count": 2,
     "created_by": "staff01",
     "assigned_to": [
       "staff01",
@@ -180,7 +180,7 @@
     ],
     "duplicate_of": "4ff6f19b-f67d-43ce-850b-b3698763183e",
     "created_at": "2025-12-30T12:58:51.522017",
-    "updated_at": "2025-12-31T18:40:25.371602",
+    "updated_at": "2026-01-03T06:11:08.527759",
     "comments": [
       {
         "user": "staff01",
