@@ -266,7 +266,7 @@ def main():
             elif choice == "5":
                 bug = bug_controller.update_status(
                     input("Bug ID: "),
-                    input("New status: ").strip().upper()
+                    input("New status (open/in_progress/completed/closed): ").strip().upper()
                 )
                 print("Status updated:")
                 print_bug_with_creator(bug)
