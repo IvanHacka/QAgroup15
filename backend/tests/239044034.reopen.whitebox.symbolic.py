@@ -1,12 +1,14 @@
-import pytest
+from backend.services.BugService import BugService
 
-def test_bug_reopen_symbolic(controller):
-    bug = controller.create("Bug", "This is a test bug", "LOW", tester_id = "staff01")
-    controller.update_status(bug.id, "CLOSED")
+
+def test_bug_reopen_symbolic():
+    service = BugService()
+    bug = service.create("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    service.update_status(bug.id, "CLOSED")
 
     # As len(reason) >= 10
     reason = "S" * 10
-    reopened = controller.reopen_bug(bug.id, "staff01", reason)
+    reopened = service.reopen_bug(bug.id, "staff01", reason)
 
-    # Reopen if constraint satisfy
+    # Reopen if constraint satify
     assert reopened.reopen_count == 1

@@ -1,7 +1,7 @@
 import pytest
 
 
-def bug_test_assign_single_user(controller):
+def test_bug_assign_single_user(controller):
     bug = controller.create("Bug", "This is a test bug", "LOW")
     updated = controller.assign(bug.id, "staff01")
     assert "staff01" in updated.assigned_to

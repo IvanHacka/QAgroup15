@@ -172,3 +172,51 @@ def test_lock_account():
     with pytest.raises(ValueError, match="Account is locked due to 3 failed attempts"):
         controller.login(username="staff01", password="wrongpassword")
 
+# Reopen
+
+def test_bug_reopen_valid(controller):
+    bug = controller.create("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    controller.update_status(bug.id, "CLOSED")
+
+    reopened = controller.reopen(bug.id, "staff01", "A very detailed valid reason")
+    assert reopened.status == BugStatus.REOPEN
+
+
+def test_bug_reopen_reason_short(controller):
+    bug = controller.create("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    controller.update_status(bug.id, "CLOSED")
+    with pytest.raises(Exception):
+        controller.reopen(bug.id, "staff01", "bug")
+
+
+# assign
+
+def test_bug_assign_single_user(controller):
+    bug = controller.create("Bug", "This is a test bug", "LOW")
+    updated = controller.assign(bug.id, "staff01")
+    assert "staff01" in updated.assigned_to
+
+
+def test_bug_assign_multiple_user(controller):
+    bug = controller.create("Bug", "This is a test bug", "LOW")
+    updated = controller.assign(bug.id, ["staff01, staff02"]) #List
+    assert len(updated.assigned_to) == 2
+
+def test_bug_assign_empty_list(controller):
+    bug = controller.create("Bug", "This is a test bug", "LOW")
+    with pytest.raises(Exception):
+        controller.assign(bug.id, [])
+
+
+# reopoen symbolci
+def test_bug_reopen_symbolic():
+    service = BugService()
+    bug = service.create_bug("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    service.update_status(bug.id, "CLOSED")
+
+    # As len(reason) >= 10
+    reason = "S" * 10
+    reopened = service.reopen_bug(bug.id, "staff01", reason)
+
+    # Reopen if constraint satify
+    assert reopened.reopen_count == 1

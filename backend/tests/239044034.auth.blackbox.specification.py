@@ -1,27 +1,32 @@
 import pytest
+from backend.services.UserService import UserService
 
 
-def test_bug_login_success(controller):
-    user = controller.login("staff01", "password123")
+def test_bug_login_success():
+    service = UserService()
+    user = service.login("staff01", "password123")
     assert user.username == "staff01"
     assert user.attempt == 0
 
 
-def test_bug_wrong_pw(controller):
+def test_bug_wrong_pw():
+    service = UserService()
     with pytest.raises(Exception):
-        controller.login("staff01", "wrongpassword")
+        service.login("staff01", "wrongpassword")
 
-def test_bug_lock(controller):
+def test_bug_lock():
+    service = UserService()
     for _ in range(3):
         try:
-            controller.login("staff01", "wrongpassword")
+            service.login("staff01", "wrongpassword")
         except Exception:
             pass
 
     with pytest.raises(Exception):
-        controller.login("staff01", "password123")
+        service.login("staff01", "password123")
 
-def test_bug_no_user(controller):
+def test_bug_no_user():
+    service = UserService()
     with pytest.raises(Exception):
-        controller.login("who", "password123")
+        service.login("who", "password123")
 
