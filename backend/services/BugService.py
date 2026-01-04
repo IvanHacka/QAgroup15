@@ -118,9 +118,14 @@ class BugService:
                 raise ValueError("Status is required")
 
             try:
-                base_status = BugStatus[status_str.upper()]
+                base_status = BugStatus[status_str.strip().upper()]
             except KeyError:
                 raise ValueError("Invalid status value")
+
+
+
+
+
 
             for bug in bugs:
 
@@ -276,8 +281,9 @@ class BugService:
         bug = self.get_bug(bug_id)
 
         try:
-            new_status_enum = BugStatus(new_status)
-        except ValueError:
+            normalized = new_status.strip().upper()
+            new_status_enum = BugStatus[normalized]
+        except KeyError:
             raise ValueError("Invalid bug status")
 
         if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
@@ -293,6 +299,7 @@ class BugService:
             return bug
 
         raise Exception("Failed to update bug status")
+
 
     # assign 29
     def assign_bug(self, bug_id: str, users: List[str]) -> Bug:
