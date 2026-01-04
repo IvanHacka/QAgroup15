@@ -65,32 +65,25 @@ class BugController:
         return self.bug_service.assign_bug(bug_id, assigned_to)
 
     # get all
-    def get_all(
-        self,
-        search_mode: Optional[str] = None,
-        query=None
-    ) -> List[Bug]:
-
-        # No search → list all
+    def get_all(self, search_mode: Optional[str] = None, query=None) -> List[Bug]:
         if not search_mode:
             return self.bug_service.list_bugs()
 
         mode = search_mode.strip().lower()
 
-        # ppl search user story 21
         if mode == "person":
             if not isinstance(query, dict):
                 raise ValueError("Person search requires a dictionary query")
-
             return self.bug_service.search_bugs(mode, query)
 
+        if mode == "status":
+            if not isinstance(query, dict):
+                raise ValueError("Status search requires a dictionary query")
+            return self.bug_service.search_bugs(mode, query)
 
         q = str(query).strip()
-
-        if mode not in ("id", "title", "status", "priority"):
-            raise ValueError("Invalid search mode")
-
         return self.bug_service.search_bugs(mode, q)
+
 
     # get one
     def get_one(self, bug_id: str) -> Bug:
