@@ -56,32 +56,130 @@ class BugService:
         - priority
         - person (created_by / assigned_to)
         """
-
-        if not query:
-            return self.repo.list_all()
-
         mode = mode.lower()
+
+        if query is None or (isinstance(query, str) and query.strip() == ""):
+            raise ValueError("Search query cannot be empty")
 
         # basic story
         if mode == "id":
             return self.repo.search_by_id(str(query))
 
         if mode == "title":
-            return self.repo.search_by_title(str(query))
+            if not isinstance(query, str):
+                raise ValueError("Keyword must be a string")
+
+            keyword = query.strip()
+
+            if len(keyword) < 2:
+                raise ValueError("Keyword too short")
+
+            if len(keyword) > 60:
+                raise ValueError("Keyword too long")
+
+            if keyword.isdigit():
+                raise ValueError("Keyword cannot be numeric")
+
+            if any(c in keyword for c in "*$%"):
+                raise ValueError("Invalid characters in keyword")
+
+            results = self.repo.search_by_title(keyword)
+
+            if not results:
+                raise ValueError("No matching bugs found")
+
+            if len(results) > 20:
+                return results[:20]
+
+            return results
 
         if mode == "status":
+
+            if isinstance(query, str):
+                query = {
+                    "status": query
+                }
+
+            bugs = self.repo.list_all()
+            results = []
+
+            ##
+            status_str = query.get("status")
+            include_reopen = query.get("include_reopen", False)
+            exclude_completed = query.get("exclude_completed", False)
+            priority = query.get("priority")
+            assigned_to = query.get("assigned_to")
+            created_by = query.get("created_by")
+            keyword = query.get("keyword")
+            only_active = query.get("only_active", False)
+
+            # validate hee
+            if not status_str:
+                raise ValueError("Status is required")
+
             try:
-                status = query if isinstance(query, BugStatus) else BugStatus[str(query).upper()]
+                base_status = BugStatus[status_str.strip().upper()]
             except KeyError:
-                raise ValueError("Invalid bug status")
-            return self.repo.search_by_status(status)
+                raise ValueError("Invalid status value")
+
+
+
+
+
+
+            for bug in bugs:
+
+                # 1. base statuss fillter
+                if bug.status != base_status:
+                    if include_reopen:
+                        if not (base_status == BugStatus.OPEN and bug.status == BugStatus.REOPEN):
+                            continue
+                    else:
+                        continue
+
+                # 2. exclude compeleted bugs
+                if exclude_completed:
+                    if bug.status == BugStatus.COMPLETED:
+                        continue
+
+                # 3. only active bugs (OPEN / REOPEN)
+                if only_active:
+                    if bug.status not in (BugStatus.OPEN, BugStatus.REOPEN):
+                        continue
+
+                # 4. priority filter
+                if priority:
+                    try:
+                        if bug.priority != BugPriority[priority.upper()]:
+                            continue
+                    except KeyError:
+                        raise ValueError("Invalid priority value")
+
+                # 5. assigned_to filter
+                if assigned_to and bug.assigned_to != assigned_to:
+                    continue
+
+                # 6. created_by filter
+                if created_by and bug.tester_id != created_by:
+                    continue
+
+                # 7. keyword fillter
+                if keyword:
+                    kw = keyword.lower()
+                    if kw not in bug.title.lower() and kw not in bug.description.lower():
+                        continue
+
+                results.append(bug)
+
+            # 8. empty result handling
+            if not results:
+                raise ValueError("No bugs found with given status policies")
+
+            return results
 
         if mode == "priority":
-            try:
-                priority = query if isinstance(query, BugPriority) else BugPriority[str(query).upper()]
-            except KeyError:
-                raise ValueError("Invalid bug priority")
-            return self.repo.search_by_priority(priority)
+            return self._search_by_priority_complex(query)
+
 
         # search by ppl
         if mode == "person":
@@ -113,11 +211,18 @@ class BugService:
                     continue
 
                 #assigned_to filter
+                # assigned_to filter (FIXED: support list[str])
                 if assigned_to:
-                    if include_unassigned:
-                        if bug.assigned_to not in (assigned_to, None):
-                            continue
+                    if isinstance(bug.assigned_to, list):
+                        if include_unassigned:
+                            # allow unassigned or contains user
+                            if bug.assigned_to and assigned_to not in bug.assigned_to:
+                                continue
+                        else:
+                            if assigned_to not in bug.assigned_to:
+                                continue
                     else:
+                        # defensive fallback (old data)
                         if bug.assigned_to != assigned_to:
                             continue
 
@@ -183,8 +288,9 @@ class BugService:
         bug = self.get_bug(bug_id)
 
         try:
-            new_status_enum = BugStatus(new_status)
-        except ValueError:
+            normalized = new_status.strip().upper()
+            new_status_enum = BugStatus[normalized]
+        except KeyError:
             raise ValueError("Invalid bug status")
 
         if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
@@ -200,6 +306,7 @@ class BugService:
             return bug
 
         raise Exception("Failed to update bug status")
+
 
     # assign 29
     def assign_bug(self, bug_id: str, users: List[str]) -> Bug:
@@ -247,9 +354,14 @@ class BugService:
         if bug.status not in (BugStatus.CLOSED, BugStatus.COMPLETED):
             raise ValueError("Bug is not closed or completed")
 
-        allowed_users = {bug.assigned_to, bug.tester_id, "staff01", "staff02"}
-        if user not in allowed_users:
+        # authorization check 
+        is_staff = user in ("staff01", "staff02")
+        is_creator = bug.tester_id == user
+        is_assigned = user in bug.assigned_to if isinstance(bug.assigned_to, list) else False
+
+        if not (is_staff or is_creator or is_assigned):
             raise ValueError("User is not authorized to reopen this bug")
+
 
         if not reason or len(reason) < 10:
             raise ValueError("Reopen reason must be at least 10 characters")
@@ -300,5 +412,63 @@ class BugService:
             return bug
 
         raise Exception("Failed to add comment")
+    
+    def _search_by_priority_complex(self, query) -> List[Bug]:
+        """
+        User Story #20:
+        Filter bug reports by priority with sufficient cyclomatic complexity.
+        """
 
+        # 1 query must exist
+        if query is None:
+            raise ValueError("Priority query cannot be None")
+
+        # 2 empty string check
+        if isinstance(query, str) and query.strip() == "":
+            raise ValueError("Priority query cannot be empty")
+
+        # 3️ already enum
+        if isinstance(query, BugPriority):
+            priority = query
+
+        # 4️ string input
+        elif isinstance(query, str):
+            normalized = query.strip().upper()
+
+            # 6️ numeric string
+            if normalized.isdigit():
+                raise ValueError("Priority cannot be numeric")
+            
+            # 5️ too short
+            if len(normalized) < 3:
+                raise ValueError("Priority string too short and not valid")
+
+            # 7️ invalid enum name
+            if normalized not in BugPriority.__members__:
+                raise ValueError("Invalid bug priority")
+
+            priority = BugPriority[normalized]
+
+        # 8️ unsupported type
+        else:
+            raise TypeError("Unsupported priority query type")
+
+        # 9️ repository failure guard
+        bugs = self.repo.search_by_priority(priority)
+        if bugs is None:
+            raise RuntimeError("Repository returned None")
+
+        # 10 empty result path
+        if not bugs:
+            return []
+
+        # 1️1 defensive filtering
+        filtered = []
+        for bug in bugs:
+            if bug.priority == priority:
+                filtered.append(bug)
+            else:
+                continue
+
+        return filtered
 

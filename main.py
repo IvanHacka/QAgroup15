@@ -22,6 +22,7 @@ def print_menu(current_user):
     print("9. Reopen bug")
     print("10. Mark bug as duplicate")
     print("11. Comment bug")
+    print(f"12. View all bugs assigned to {current_user.username}")
     print("0. Exit")
 
 
@@ -137,10 +138,66 @@ def main():
                 ).strip().lower()
 
                 if mode != "person":
-                    query = input("Search query: ").strip()
+
+                    if mode == "priority":
+                        query = input("Search query (low / medium / high): ").strip()
+                    elif mode == "status":
+                        status = input(
+                            "Search status (open / in_progress / closed / completed / reopen): "
+                        ).strip()
+
+                        include_reopen = (
+                            input("Include REOPEN bugs when status is OPEN? (y/n): ").lower() == "y"
+                        )
+
+                        exclude_completed = (
+                            input("Exclude COMPLETED bugs? (y/n): ").lower() == "y"
+                        )
+
+                        only_active = (
+                            input("Only show active bugs (OPEN / REOPEN)? (y/n): ").lower() == "y"
+                        )
+
+                        priority = input(
+                            "Filter by priority (low / medium / high, press enter to skip): "
+                        ).strip()
+                        if not priority:
+                            priority = None
+
+                        assigned_to = input(
+                            "Filter by assigned user (press enter to skip): "
+                        ).strip()
+                        if not assigned_to:
+                            assigned_to = None
+
+                        keyword = input(
+                            "Optional keyword (press enter to skip): "
+                        ).strip()
+                        if not keyword:
+                            keyword = None
+
+                        query = {
+                            "status": status,
+                            "include_reopen": include_reopen,
+                            "exclude_completed": exclude_completed,
+                            "only_active": only_active,
+                            "priority": priority,
+                            "assigned_to": assigned_to,
+                            "keyword": keyword
+                        }
+
+                    elif mode == "id":
+                        query = input("Search bug ID: ").strip()
+                    elif mode == "title":
+                        query = input("Search keyword: ").strip()
+                    else:
+                        query = input("Search query: ").strip()
+
                     bugs = bug_controller.get_all(mode, query)
+
                     for bug in bugs:
                         print_bug_with_creator(bug)
+
                 else:
                     print("\nPerson search:")
                     print("1. assigned_to")
@@ -209,7 +266,7 @@ def main():
             elif choice == "5":
                 bug = bug_controller.update_status(
                     input("Bug ID: "),
-                    input("New status: ").strip().upper()
+                    input("New status (open/in_progress/completed/closed): ").strip().upper()
                 )
                 print("Status updated:")
                 print_bug_with_creator(bug)
@@ -299,6 +356,23 @@ def main():
                 print("Comment added successfully.")
                 print(bug.to_dict())
 
+            elif choice == "12":
+                bugs=bug_controller.get_all()
+                MyBugs=[]
+                for bug in bugs:
+                    assigned=bug.to_dict().get("assigned_to")
+                    if assigned is None:
+                        assigned=[]
+                    if current_user.username in assigned:
+                        MyBugs.append(bug)
+                if not MyBugs:
+                    print("You have no assigned bugs")
+                else:
+                    print("Bugs assigned:")
+                    for bug in MyBugs:
+                        print(bug.to_dict())
+
+
 
             elif choice == "0":
                 print("Exiting...")
@@ -306,6 +380,7 @@ def main():
 
         except Exception as e:
             print("Error:", e)
+
 
 
 def login(user):

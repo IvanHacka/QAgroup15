@@ -2,9 +2,12 @@ import pytest
 import tempfile
 import os
 
+from backend.controllers.UserController import UserController
 from backend.models.Bug import Bug, BugStatus, BugPriority
 from backend.repo.BugRepo import BugRepo
 from backend.services.BugService import BugService
+from backend.services.UserService import UserService
+
 
 #-------------------------------------
 # Helper functions down here (the order matter btw)
@@ -26,6 +29,10 @@ def create_sample_bug(service: BugService) -> Bug:
         tester_id=1
     )
     return service.create_bug(bug)
+
+def make_controller():
+    service = UserService()
+    return UserController(service), service
 #-------------------------------------
 
 
@@ -142,3 +149,26 @@ def test_update_bug_reject_empty_description():
             description=""
         )
 #-------------------------------------
+
+#login tests
+
+
+def test_wrong_username():
+    controller, service = make_controller()
+    with pytest.raises(ValueError):
+        controller.login(username="wrong_username", password="password123")
+
+def test_wrong_password():
+    controller, service = make_controller()
+    with pytest.raises(ValueError):
+        controller.login(username="staff01", password="wrongpassword")
+#after 3 incorrect attempts account should be locked
+def test_lock_account():
+    controller, service = make_controller()
+    with pytest.raises(ValueError):
+        controller.login(username="staff01", password="wrongpassword")
+    with pytest.raises(ValueError):
+        controller.login(username="staff01", password="wrongpassword")
+    with pytest.raises(ValueError, match="Account is locked due to 3 failed attempts"):
+        controller.login(username="staff01", password="wrongpassword")
+
