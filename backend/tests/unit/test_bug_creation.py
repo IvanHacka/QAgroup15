@@ -194,7 +194,9 @@ def test_bug_reopen_reason_short(controller):
 def test_bug_assign_single_user(controller):
     bug = controller.create("Bug", "This is a test bug", "LOW")
     updated = controller.assign(bug.id, "staff01")
-    assert "staff01" in updated.assigned_to
+    assert updated is not None, "Assignment should return updated bug"
+    assert "staff01" in updated.assigned_to, "User should be in assigned_to list"
+    assert len(updated.assigned_to) == 1, "Should have exactly one assignee"
 
 
 def test_bug_assign_multiple_user(controller):
@@ -204,19 +206,25 @@ def test_bug_assign_multiple_user(controller):
 
 def test_bug_assign_empty_list(controller):
     bug = controller.create("Bug", "This is a test bug", "LOW")
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         controller.assign(bug.id, [])
+
+def test_assign_duplicate_users_only_once(self, bug_controller):
+    bug = bug_controller.create("Bug", "This is a test bug", "LOW")
+    updated = bug_controller.assign(bug.id, ["staff01", "staff01", "staff02"])
+
+    assert len(updated.assigned_to) == 2, "Duplicates should be removed"
+    assert updated.assigned_to.count("staff01") == 1, "User should appear only once"
 
 
 # reopoen symbolci
-def test_bug_reopen_symbolic():
-    service = BugService()
-    bug = service.create_bug("Bug", "This is a test bug", "LOW", tester_id = "staff01")
-    service.update_status(bug.id, "CLOSED")
+def test_bug_reopen_symbolic(controller):
+    bug = controller.create_bug("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    controller.update_status(bug.id, "CLOSED")
 
     # As len(reason) >= 10
     reason = "S" * 10
-    reopened = service.reopen_bug(bug.id, "staff01", reason)
+    reopened = controller.reopen_bug(bug.id, "staff01", reason)
 
     # Reopen if constraint satify
     assert reopened.reopen_count == 1
