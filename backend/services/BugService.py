@@ -211,11 +211,18 @@ class BugService:
                     continue
 
                 #assigned_to filter
+                # assigned_to filter (FIXED: support list[str])
                 if assigned_to:
-                    if include_unassigned:
-                        if bug.assigned_to not in (assigned_to, None):
-                            continue
+                    if isinstance(bug.assigned_to, list):
+                        if include_unassigned:
+                            # allow unassigned or contains user
+                            if bug.assigned_to and assigned_to not in bug.assigned_to:
+                                continue
+                        else:
+                            if assigned_to not in bug.assigned_to:
+                                continue
                     else:
+                        # defensive fallback (old data)
                         if bug.assigned_to != assigned_to:
                             continue
 
