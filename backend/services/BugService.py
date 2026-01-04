@@ -151,7 +151,7 @@ class BugService:
                         raise ValueError("Invalid priority value")
 
                 # 5. assigned_to filter
-                if assigned_to and bug.assigned_to != assigned_to:
+                if assigned_to and assigned_to not in bug.assigned_to:
                     continue
 
                 # 6. created_by filter
@@ -211,7 +211,7 @@ class BugService:
                         if bug.assigned_to not in (assigned_to, None):
                             continue
                     else:
-                        if bug.assigned_to != assigned_to:
+                        if assigned_to not in bug.assigned_to:
                             continue
 
                 # same creator & assignee

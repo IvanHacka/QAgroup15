@@ -16,7 +16,7 @@ class BugController:
         priority: str,
         status: str,
         tester_id: Optional[str] = None,
-        assigned_to: Optional[str] = None
+        assigned_to: Optional[list[str]] = None
     ) -> Bug:
 
         if not title or not description:
