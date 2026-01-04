@@ -228,10 +228,13 @@
     "priority": "LOW",
     "reopen_count": 0,
     "created_by": "staff01",
-    "assigned_to": null,
+    "assigned_to": [
+      "staff02",
+      "staff01"
+    ],
     "duplicate_of": null,
     "created_at": "2025-12-31T20:52:32.425762",
-    "updated_at": "2025-12-31T20:53:21.866573",
+    "updated_at": "2026-01-02T22:53:15.782712",
     "comments": [],
     "screenshot": []
   }
