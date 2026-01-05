@@ -36,6 +36,20 @@ git clone [https://github.com/IvanHacka/QAgroup15]
 # Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# make sure you have installed python3.13
+# Linux
+udo apt install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.13
+
+# To update the Python interpreter in PyCharm, 
+# go to File > Settings > Project: 
+# [your project name] > Project Interpreter, 
+# then select the new Python executable path 
+# from the dropdown menu or click the gear 
+# icon to add a new interpreter. 
 ```
 
 ## Running software
@@ -80,5 +94,8 @@ QAgroup15/
 ├── data/
 │   └── Bugs.json
 ├── main.py
+├── test/
+    └── wcvt1/
+    └── nhn7/
 └── README.md
 
