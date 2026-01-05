@@ -8,6 +8,27 @@ class BugService:
     def __init__(self, repo: BugRepo):
         self.repo = repo
 
+    ALLOWED_TRANSITIONS = {
+        BugStatus.OPEN: {
+            BugStatus.IN_PROGRESS,
+            BugStatus.CLOSED,
+            BugStatus.DUPLICATE,
+        },
+        BugStatus.IN_PROGRESS: {
+            BugStatus.FAILED,
+            BugStatus.COMPLETED,
+            BugStatus.CLOSED,
+        },
+        BugStatus.FAILED: {
+            BugStatus.CLOSED,
+        },
+        BugStatus.REOPEN: {
+            BugStatus.IN_PROGRESS,
+            BugStatus.CLOSED,
+            BugStatus.DUPLICATE,
+        },
+    }
+
     # validation
     def validate_bug(self, bug: Bug) -> Bug:
         if not bug.title:
@@ -121,12 +142,7 @@ class BugService:
                 base_status = BugStatus[status_str.strip().upper()]
             except KeyError:
                 raise ValueError("Invalid status value")
-
-
-
-
-
-
+            
             for bug in bugs:
 
                 # 1. base statuss fillter
@@ -181,7 +197,7 @@ class BugService:
             return self._search_by_priority_complex(query)
 
 
-        # search by ppl
+        # user story 21, search by ppl
         if mode == "person":
             """
             query is expected to be a dict:
@@ -259,7 +275,7 @@ class BugService:
 
         raise Exception("Failed to create bug")
 
-    # update deatails 29
+    # update deatails 6
     def update_bug_details(
         self,
         bug_id: str,
@@ -283,22 +299,32 @@ class BugService:
 
         raise Exception("Failed to update bug")
 
-    # user story 29 and 30
+
+        # user story 13
     def update_bug_status(self, bug_id: str, new_status: str) -> Bug:
         bug = self.get_bug(bug_id)
 
+        # 1) Parse new status
         try:
             normalized = new_status.strip().upper()
             new_status_enum = BugStatus[normalized]
-        except KeyError:
+        except Exception:
             raise ValueError("Invalid bug status")
 
+        # 2) CLOSED / COMPLETED must go through reopen_bug()
         if bug.status in (BugStatus.CLOSED, BugStatus.COMPLETED):
-            if new_status_enum != BugStatus.REOPEN:
-                raise ValueError(
-                    "You must REOPEN the bug before changing its status."
-                )
+            raise ValueError(
+                "Closed or completed bugs must be reopened via reopen_bug()"
+            )
 
+        # 3) State machine transition check
+        allowed = self.ALLOWED_TRANSITIONS.get(bug.status, set())
+        if new_status_enum not in allowed:
+            raise ValueError(
+                f"Invalid status transition: {bug.status.name} → {new_status_enum.name}"
+            )
+
+        # 4) Apply update
         bug.status = new_status_enum
         bug.updated_at = datetime.now().isoformat()
 
@@ -306,6 +332,7 @@ class BugService:
             return bug
 
         raise Exception("Failed to update bug status")
+
 
 
     # assign 29
