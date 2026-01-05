@@ -1,0 +1,36 @@
+====================================
+if u want to run the Application 
+The backend can be started from the project root directory:
+
+enter:   python3 backend/main.py. 
+
+====================================
+
+Running All Tests:
+
+From the project root directory:
+
+enter:   python3 -m pytest
+=====================================
+
+
+Testing Techniques Applied
+The following testing techniques were applied in accordance with the assignment requirements:
+
+Black-Box Testing.         python3 -m pytest tests/wcvt1/test/blackbox/ -v
+Boundary Value Analysis
+Equivalence Partitioning
+Random Testing
+
+White-Box Testing.         python3 -m pytest tests/wcvt1/test/whitebox/ -v
+Statement Coverage
+Branch Coverage
+concolic
+
+Research Component
+Symbolic Execution
+Concolic Testing (conceptual application with concrete test inputs)
+
+
+
+
