@@ -92,14 +92,14 @@ class BugService:
 
             keyword = query.strip()
 
+            if keyword.isdigit():
+                raise ValueError("Keyword cannot be numeric")
+
             if len(keyword) < 2:
                 raise ValueError("Keyword too short")
 
             if len(keyword) > 60:
                 raise ValueError("Keyword too long")
-
-            if keyword.isdigit():
-                raise ValueError("Keyword cannot be numeric")
 
             if any(c in keyword for c in "*$%"):
                 raise ValueError("Invalid characters in keyword")

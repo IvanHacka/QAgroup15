@@ -1,14 +1,14 @@
 [
   {
     "id": "c04e3847-3a1e-4da0-aa52-579793d03481",
-    "title": "5",
-    "description": "bug03",
+    "title": "bug01",
+    "description": "bug01",
     "status": "REOPEN",
-    "priority": "MEDIUM",
+    "priority": "LOW",
     "reopen_count": 1,
     "created_by": "staff01",
     "assigned_to": [
-      "staff01"
+      "staff02"
     ],
     "duplicate_of": null,
     "created_at": "2025-12-29T12:51:24.334815",
@@ -18,10 +18,10 @@
   },
   {
     "id": "55cebe9d-30cb-4eb3-b472-dbed920e2792",
-    "title": "can't see logout button",
+    "title": "closed_bug",
     "description": "123",
-    "status": "OPEN",
-    "priority": "LOW",
+    "status": "CLOSED",
+    "priority": "MEDIUM",
     "reopen_count": 0,
     "created_by": "staff01",
     "assigned_to": "staff02",
@@ -38,46 +38,13 @@
     "status": "OPEN",
     "priority": "LOW",
     "reopen_count": 0,
-    "created_by": null,
+    "created_by": "staff02",
     "assigned_to": [
       "staff01"
     ],
     "duplicate_of": null,
     "created_at": "2025-12-30T15:02:37.381433",
     "updated_at": "2025-12-30T16:24:12.075657",
-    "comments": [],
-    "screenshot": []
-  },
-  {
-    "id": "4ff6f19b-f67d-43ce-850b-b3698763183e",
-    "title": "Testing2",
-    "description": "testing how it comes out",
-    "status": "OPEN",
-    "priority": "LOW",
-    "reopen_count": 0,
-    "created_by": "staff01",
-    "assigned_to": null,
-    "duplicate_of": null,
-    "created_at": "2025-12-30T12:57:49.462765",
-    "updated_at": null,
-    "comments": [],
-    "screenshot": []
-  },
-  {
-    "id": "a83ee66c-12d7-4a3b-9ca0-4cbaa18cf3ab",
-    "title": "closed",
-    "description": "wo",
-    "status": "CLOSED",
-    "priority": "LOW",
-    "reopen_count": 1,
-    "created_by": "staff01",
-    "assigned_to": [
-      "staff02",
-      "staff01"
-    ],
-    "duplicate_of": null,
-    "created_at": "2025-12-31T20:52:32.425762",
-    "updated_at": "2026-01-04T22:12:53.213409",
     "comments": [],
     "screenshot": []
   }
