@@ -20,8 +20,8 @@ Bugs that are created are automatically set as OPEN
 
 ## tests
 - QAgroup15/tests/wcvt1/test: 
--wcvt1.test.blackbox.xxxxxxx
--Wcvt1.test.whitebox.xxxxxxx 
+- wcvt1.test.blackbox.xxxxxxx
+- Wcvt1.test.whitebox.xxxxxxx 
 
 - 
 ## Prequisities
