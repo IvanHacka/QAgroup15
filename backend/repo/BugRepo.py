@@ -11,7 +11,7 @@ class BugRepo:
     Uses a JSON file as storage.
     """
 
-    def __init__(self, file_path: str = "data/bugs.json"):
+    def __init__(self, file_path: str = "data/Bugs.json"):
         self.file_path = file_path
 
         # Ensure data directory & file exist

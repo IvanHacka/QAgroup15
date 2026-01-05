@@ -95,7 +95,7 @@ QAgroup15/
 │   └── Bugs.json
 ├── main.py
 ├── test/
-    └── wcvt1/
-    └── nhn7/
+│   └── wcvt1/
+│   └── nhn7/
 └── README.md
 
