@@ -18,6 +18,12 @@ Bugs that are created are automatically set as OPEN
 8. Persistent storage using JSON files
 9. User authentication with account lockout after failed attempts
 
+## tests
+- QAgroup15/tests/wcvt1/test: 
+-wcvt1.test.blackbox.xxxxxxx
+-Wcvt1.test.whitebox.xxxxxxx 
+
+- 
 ## Prequisities
 - python 3.0 or above
 
