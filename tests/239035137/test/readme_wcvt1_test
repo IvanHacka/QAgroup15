@@ -6,23 +6,23 @@ enter:   python3 backend/main.py.
 
 ====================================
 
-Running All Tests:
+Running All Tests for vincci (wcvt1  239035137):
 
 From the project root directory:
 
-enter:   python3 -m pytest
+enter:   python3 -m pytest tests/239035137/test/ -v
 =====================================
 
 
 Testing Techniques Applied
 The following testing techniques were applied in accordance with the assignment requirements:
 
-Black-Box Testing.         python3 -m pytest tests/wcvt1/test/blackbox/ -v
+Black-Box Testing.         python3 -m pytest tests/239035137/test/blackbox/ -v
 Boundary Value Analysis
 Equivalence Partitioning
 Random Testing
 
-White-Box Testing.         python3 -m pytest tests/wcvt1/test/whitebox/ -v
+White-Box Testing.         python3 -m pytest tests/239035137/test/whitebox/ -v
 Statement Coverage
 Branch Coverage
 concolic
