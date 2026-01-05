@@ -2,12 +2,12 @@ from backend.controllers.BugController import BugController
 
 
 def test_bug_reopen_symbolic(controller):
-    bug = controller.create("Bug", "This is a test bug", "LOW", tester_id = "staff01")
+    bug = controller.create("Bug", "This is a test bug", "LOW", "OPEN", tester_id = "staff01")
     controller.update_status(bug.id, "CLOSED")
 
     # As len(reason) >= 10
     reason = "S" * 10
-    reopened = controller.reopen_bug(bug.id, "staff01", reason)
+    reopened = controller.reopen(bug.id, "staff01", reason)
 
     # Reopen if constraint satify
     assert reopened.reopen_count == 1
